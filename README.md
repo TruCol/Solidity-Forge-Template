@@ -6,18 +6,17 @@
 <img src="Images/laser_eyes_3.jpg" alt="A description of the image content"
 style="display:block;float:none;margin-left:auto;margin-right:auto;width:50%">
 
-This is a starter pack for Solidity development, with:
+This is a template for Solidity development aimed at the strictest quality compliance settings, with:
 
 - Dedicated Slither & SolHint pre-commit configs for `src/` and `test/` files.
 - Automatic code coverage badge that is computed by GitHub CI.
 - Fuzz testing example.
-- (Optional) Fuzz run logging. (This feature is not yet natively supported (as
-  of 2024-06-04) so I built a hacky workaround).
+- Fuzz run logging. (This feature is not yet natively supported (as 
+of 2024-06-04) so I built a hacky workaround).
 - Code/Branch coverage using LCOV.
 - Automatically generated documentation.
 
-It is aimed to adhere to the strictest quality compliance settings (I could
-find). To start your own Solidity project, just fork it and start building.
+ To start your own Solidity project, just fork it and start building.
 
 ## Deployment Prerequisites
 
@@ -87,7 +86,7 @@ clear && forge test -vvv
 Or to run a single test (function):
 
 ```sh
-clear && forge test -vvv --match-test addTwo
+clear && forge test -vvv --match-test testAddTwo
 ```
 
 The `-vvv` is necessary to display the error messages that you wrote with the
