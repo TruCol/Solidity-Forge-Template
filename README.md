@@ -142,23 +142,27 @@ linted and tested on every push and pull request made to the `main` branch.
 You can edit the CI script in
 [.github/workflows/ci.yml](./.github/workflows/ci.yml).
 
-To ensure the code coverage badge is updated automatically when you push to `
-main`,you could:
-- Go to: https://gist.github.com/ and create a secret gist named <your repo name>_branch_coverage.json
-- Update the .github/workflows/ci.yml and replace this repository name with <your repo name>
-- Go to your GitHub settings>developer settings>tokens>classic>create a new 
-personal access token that has the following permissions: `gist`.
-- Copy that token (secret) and paste it into: 
-<your repository>/settings> Secrets and variables> Actions>Repository secrets>
-New repository secret.
-- Then go to the gist by clicking on it in: https://gist.github.com/a-t-0/ 
-which gives you an url like:
-https://gist.github.com/a-t-0/59ab053717e0ed834dc2b24304edd5c6
-Copy that url and put it in the `branch-coverage-badge-icon` section at the 
-bottom of this Readme file.
+To ensure the code coverage badge is updated automatically when you push to
+`main`,you could:
+
+- Go [here](https://gist.github.com/) and create a secret gist named
+  `<your repo name>_branch_coverage.json`
+- Update the .github/workflows/ci.yml and replace this repository name with
+  `<your repo name>`
+- Go to your GitHub settings>developer settings>tokens>classic>create a new
+  personal access token that has the following permissions: `gist`.
+- Copy that token (secret) and paste it into:
+  `<your repository> > settings > Secrets and variables > Actions`
+  `> Repository secrets > New repository secret.`
+- Then go to the gist by clicking on it in:
+  `https://gist.github.com/<your GitHub username>/`
+  which gives you an url like:
+  `https://gist.github.com/a-t-0/59ab053717e0ed834dc2b24304edd5c6`
+  Copy that url and put it in the `branch-coverage-badge-icon` section at the
+  bottom of this Readme file.
 
 That should be it, now your repo fork has the ability to push the CI results
- into the gist you just created, and load the badge from that position.
+into the gist you just created, and load the badge from that position.
 
 ## Deploy Locally
 
