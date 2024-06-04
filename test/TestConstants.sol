@@ -10,7 +10,7 @@ https://github.com/foundry-rs/foundry/issues/4300
 So I built a hacky way around logging Fuzz runs. It leverages:
 - setUp() is ran once before each test.
 - fuzzRuns are ran multiple times per test.
-- A temporary file that isa  a "last modified" date that can be read from test.
+- A temporary file has a "last modified" date that can be read from test.
 
 And I use the following terminology:
 - A `test run` can run multiple test.

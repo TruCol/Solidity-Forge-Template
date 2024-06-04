@@ -82,7 +82,7 @@ jobs:
         with:
           auth: ${{ secrets.GIST_SECRET }}
           gistID: c58317c4d6983cacf14e0466cb1d2438
-          filename: Decentralised-Saas-Investment-Protocol_line_coverage.json
+          filename: Solidity-Forge-Template_line_coverage.json
           label: Line Coverage
           message: ${{ env.LINE_COVERAGE }}
           namedLogo: jest
@@ -94,7 +94,7 @@ jobs:
         with:
           auth: ${{ secrets.GIST_SECRET }}
           gistID: c58317c4d6983cacf14e0466cb1d2438
-          filename: Decentralised-Saas-Investment-Protocol_branch_coverage.json
+          filename: Solidity-Forge-Template_branch_coverage.json
           label: Branch Coverage
           message: ${{ env.BRANCH_COVERAGE }}
           namedLogo: jest
