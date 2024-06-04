@@ -81,7 +81,7 @@ jobs:
         uses: schneegans/dynamic-badges-action@v1.7.0
         with:
           auth: ${{ secrets.GIST_SECRET }}
-          gistID: c58317c4d6983cacf14e0466cb1d2438
+          gistID: 59ab053717e0ed834dc2b24304edd5c6
           filename: Solidity-Forge-Template_line_coverage.json
           label: Line Coverage
           message: ${{ env.LINE_COVERAGE }}
@@ -93,7 +93,7 @@ jobs:
         uses: schneegans/dynamic-badges-action@v1.7.0
         with:
           auth: ${{ secrets.GIST_SECRET }}
-          gistID: c58317c4d6983cacf14e0466cb1d2438
+          gistID: 59ab053717e0ed834dc2b24304edd5c6
           filename: Solidity-Forge-Template_branch_coverage.json
           label: Branch Coverage
           message: ${{ env.BRANCH_COVERAGE }}

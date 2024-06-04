@@ -160,6 +160,7 @@ To ensure the code coverage badge is updated automatically when you push to
   `https://gist.github.com/a-t-0/59ab053717e0ed834dc2b24304edd5c6`
   Copy that url and put it in the `branch-coverage-badge-icon` section at the
   bottom of this Readme file.
+  - Also copy that gist ID into the `.github/workflows/ci.yml` (twice).
 
 That should be it, now your repo fork has the ability to push the CI results
 into the gist you just created, and load the badge from that position.
