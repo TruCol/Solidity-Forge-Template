@@ -153,7 +153,8 @@ To ensure the code coverage badge is updated automatically when you push to
   personal access token that has the following permissions: `gist`.
 - Copy that token (secret) and paste it into:
   `<your repository> > settings > Secrets and variables > Actions`
-  `> Repository secrets > New repository secret.`
+  `> Repository secrets > New repository secret.` ensure that secret has the
+  name: `GIST_SECRET` (and value you just copied).
 - Then go to the gist by clicking on it in:
   `https://gist.github.com/<your GitHub username>/`
   which gives you an url like:
