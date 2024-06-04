@@ -1,0 +1,43 @@
+{
+  "author": {
+    "name": "TruCol",
+    "url": "https://github.com/TruCol"
+  },
+  "dependencies": {
+    "gulp": "^5.0.0",
+    "markdownlint-cli": "^0.39.0",
+    "sol2uml": "^1.1.29"
+  },
+  "description": "",
+  "devDependencies": {
+    "@openzeppelin/contracts": "^5.0.2",
+    "@prb/test": "^0.6.4",
+    "forge-std": "github:foundry-rs/forge-std#v1.7.5",
+    "lcov-badge-generator": "^1.0.5",
+    "prettier": "^3.0.0"
+  },
+  "keywords": [
+    "blockchain",
+    "ethereum",
+    "forge",
+    "foundry",
+    "smart-contracts",
+    "solidity",
+    "template"
+  ],
+  "name": "@TruCol/foundry-template",
+  "private": true,
+  "scripts": {
+    "badge": "lcov-badge-generator ./coverage/lcov.info -o coverage/badge.svg",
+    "build": "forge build",
+    "clean": "rm -rf cache out",
+    "lint": "bun run lint:sol && bun run prettier:check",
+    "lint:sol": "forge fmt --check && bun solhint {script,src,test}/**/*.sol",
+    "prettier:check": "prettier --check \"**/*.{json,md,yml}\" --ignore-path \".prettierignore\"",
+    "prettier:write": "prettier --write \"**/*.{json,md,yml}\" --ignore-path \".prettierignore\"",
+    "test": "forge test",
+    "test:coverage": "forge coverage",
+    "test:coverage:report": "forge coverage --report lcov && genhtml lcov.info --branch-coverage --output-dir coverage"
+  },
+  "version": "1.0.0"
+}

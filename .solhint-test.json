@@ -1,0 +1,23 @@
+{
+  "extends": [
+    "solhint:all"
+  ],
+  "plugins": [],
+  "rules": {
+    "foundry-test-functions": [
+      "warn"
+    ],
+    "func-visibility": [
+      "error",
+      {
+        "ignoreConstructors": true
+      }
+    ],
+    "gas-small-strings": [
+      "off"
+    ],
+    "not-rely-on-time": [
+      "off"
+    ]
+  }
+}
