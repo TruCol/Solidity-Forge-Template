@@ -26,3 +26,7 @@ that the randomness avoids some test cases, which could mean some behaviour woul
 passes, giving a false sense of confidence.
 */
 string constant _LOG_TIME_CREATOR = "temp.txt"; // File used to create the timestamp to log the fuzz tests.
+
+/** @dev The arrays with the values of the parameters that are logged need to be a memory array, which means they need
+to have a predetermined length. This is that length.*/
+uint32 constant _MAX_NR_OF_TEST_LOG_VALUES_PER_LOG_FILE = 26;

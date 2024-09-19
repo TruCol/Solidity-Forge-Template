@@ -1,10 +1,9 @@
 pragma solidity >=0.8.26 <0.9.0;
 
-import "forge-std/src/Vm.sol" as vm;
+import "@openzeppelin/contracts/utils/Strings.sol";
 import { PRBTest } from "@prb/test/src/PRBTest.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
-
-import "@openzeppelin/contracts/utils/Strings.sol";
+import "forge-std/src/Vm.sol";
 
 error LogFileNotCreated(string message, string fileName);
 error SomeFileDoesNotExist(string message, string fileName);
