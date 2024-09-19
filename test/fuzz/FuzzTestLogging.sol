@@ -26,7 +26,7 @@ contract FuzzTest is PRBTest, StdCheats, IFuzzTest {
   using IterableStringMapping for IterableStringMapping.Map;
   IterableStringMapping.Map private _variableNameMapping;
 
-  TestIterableMapping private _testIterableMapping;
+  TestIterableMapping private _logMapping;
   TestFileLogging private _testFileLogging;
 
   TestMathHelper private _testMathHelper;
@@ -40,7 +40,7 @@ contract FuzzTest is PRBTest, StdCheats, IFuzzTest {
     if (vm.isFile(_LOG_TIME_CREATOR)) {
       vm.removeFile(_LOG_TIME_CREATOR);
     }
-    _testIterableMapping = new TestIterableMapping();
+    _logMapping = new TestIterableMapping();
 
     _variableNameMapping.set("LargerThan", "a");
     _variableNameMapping.set("SmallerThan", "b");
@@ -52,26 +52,23 @@ contract FuzzTest is PRBTest, StdCheats, IFuzzTest {
   So the investment target is not reached, so all the funds should be returned.
    */
   function testFuzzDebug(uint256 randomValue) public virtual {
-    _testIterableMapping.readHitRatesFromLogFileAndSetToMap(_testIterableMapping.getHitRateFilePath());
+    _logMapping.readHitRatesFromLogFileAndSetToMap(_logMapping.getHitRateFilePath());
 
     if (randomValue > 42) {
-      _testIterableMapping.set(
+      _logMapping.set(
         _variableNameMapping.get("LargerThan"),
-        _testIterableMapping.get(_variableNameMapping.get("LargerThan")) + 1
+        _logMapping.get(_variableNameMapping.get("LargerThan")) + 1
       );
     } else {
-      _testIterableMapping.set(
+      _logMapping.set(
         _variableNameMapping.get("SmallerThan"),
-        _testIterableMapping.get(_variableNameMapping.get("SmallerThan")) + 1
+        _logMapping.get(_variableNameMapping.get("SmallerThan")) + 1
       );
     }
-    _testIterableMapping.set(
-      _variableNameMapping.get("Total"),
-      _testIterableMapping.get(_variableNameMapping.get("Total")) + 1
-    );
+    _logMapping.set(_variableNameMapping.get("Total"), _logMapping.get(_variableNameMapping.get("Total")) + 1);
     emit Log("Overwriting with:");
     emit Log(_variableNameMapping.get("SmallerThan"));
-    emit Log(Strings.toString(_testIterableMapping.get(_variableNameMapping.get("SmallerThan"))));
-    _testIterableMapping.overwriteExistingMapLogFile(_testIterableMapping.getHitRateFilePath());
+    emit Log(Strings.toString(_logMapping.get(_variableNameMapping.get("SmallerThan"))));
+    _logMapping.overwriteExistingMapLogFile(_logMapping.getHitRateFilePath());
   }
 }

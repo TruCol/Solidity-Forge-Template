@@ -71,5 +71,4 @@ library IterableStringMapping {
       map.keys.push(key);
     }
   }
-
 }

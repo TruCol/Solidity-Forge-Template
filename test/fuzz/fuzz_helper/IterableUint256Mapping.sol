@@ -24,17 +24,13 @@ pragma solidity >=0.8.25 <0.9.0;
 import { console2 } from "forge-std/src/console2.sol";
 import "test/TestConstants.sol";
 
-library IterableMapping {
+library IterableUint256Mapping {
   // Iterable mapping from string[] to uint;
   struct Map {
     string[] keys;
     mapping(string => uint256) values;
     mapping(string => uint256) indexOf;
     mapping(string => bool) inserted;
-  }
-
-  function get(Map storage map, string memory key) public view returns (uint256) {
-    return map.values[key];
   }
 
   function getKeys(Map storage map) public view returns (string[] memory) {
