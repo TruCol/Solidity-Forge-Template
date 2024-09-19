@@ -8,7 +8,7 @@
 repos:
 # Test if the python code is formatted according to the Black standard.
  - repo: https://github.com/Quantco/pre-commit-mirrors-black
-   rev: 24.4.0
+   rev: 24.4.2
    hooks:
      - id: black-conda
        args:
@@ -17,7 +17,7 @@ repos:
 
 # Test if the python code is formatted according to the flake8 standard.
  - repo: https://github.com/Quantco/pre-commit-mirrors-flake8
-   rev: 7.0.0
+   rev: 7.1.1
    hooks:
     - id: flake8-conda
 
@@ -34,7 +34,7 @@ repos:
 # - repo: https://github.com/python/mypy
  - repo: https://github.com/pre-commit/mirrors-mypy
 ### - repo: https://github.com/a-t-0/mypy
-   rev: v1.9.0
+   rev: v1.11.2
    hooks:
     - id: mypy
       # args: ["--disallow-untyped-calls", "--disallow-untyped-defs"]
@@ -54,7 +54,7 @@ repos:
 
 # Tests if there are spelling errors in the code.
  - repo: https://github.com/codespell-project/codespell
-   rev: v2.2.6
+   rev: v2.3.0
    hooks:
     - id: codespell
 
@@ -129,7 +129,7 @@ repos:
       stages: [commit]
 
  - repo: https://github.com/PyCQA/bandit
-   rev: 1.7.8
+   rev: 1.7.9
    hooks:
    - id: bandit
      name: Bandit
@@ -168,14 +168,14 @@ repos:
 # Updates the syntax of `.py` files to the specified python version.
 # It is not compatible with: pre-commit hook: fix-encoding-pragma
  - repo: https://github.com/asottile/pyupgrade
-   rev: v3.15.2
+   rev: v3.17.0
    hooks:
      - id: pyupgrade
        args: [--py38-plus]
 
 
  - repo: https://github.com/igorshubovych/markdownlint-cli
-   rev: v0.39.0
+   rev: v0.41.0
    hooks:
      - id: markdownlint
        args: ["--fix"]
