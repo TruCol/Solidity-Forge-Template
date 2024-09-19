@@ -72,7 +72,7 @@ contract TestIterableMapping is PRBTest, StdCheats {
     _hitRateFilePath = initialiseMapping();
   }
 
-  function get(string memory key) public returns (uint256) {
+  function get(string memory key) public view returns (uint256) {
     return _map.values[key];
   }
 
@@ -85,7 +85,7 @@ contract TestIterableMapping is PRBTest, StdCheats {
     return _hitRateFilePath;
   }
 
-  function getValues() public returns (uint256[] memory) {
+  function getValues() public view returns (uint256[] memory) {
     uint256[] memory listOfValues = new uint256[](_MAX_NR_OF_TEST_LOG_VALUES_PER_LOG_FILE);
 
     if (_map.keys.length >= 1) {
@@ -202,11 +202,6 @@ into a struct, and then converts that struct into this _mapping.
 
   // solhint-disable-next-line foundry-test-functions
   function updateLogParamMapping(LogParams memory logParams) public {
-    // string[] memory structKeys = vm.parseJsonKeys(logParams, "$");
-    // string[] memory structKeys = ["hello", "another"];
-
-    string[] memory structKeys;
-
     // TODO: update the keys to represent the actual keys in the logParams object.
     for (uint256 i = 0; i < _MAX_NR_OF_TEST_LOG_VALUES_PER_LOG_FILE; i++) {
       if (i == 0) {

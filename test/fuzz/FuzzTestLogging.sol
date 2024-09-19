@@ -65,6 +65,13 @@ contract FuzzTest is PRBTest, StdCheats, IFuzzTest {
         _testIterableMapping.get(_variableNameMapping.get("SmallerThan")) + 1
       );
     }
+    _testIterableMapping.set(
+      _variableNameMapping.get("Total"),
+      _testIterableMapping.get(_variableNameMapping.get("Total")) + 1
+    );
+    emit Log("Overwriting with:");
+    emit Log(_variableNameMapping.get("SmallerThan"));
+    emit Log(Strings.toString(_testIterableMapping.get(_variableNameMapping.get("SmallerThan"))));
     _testIterableMapping.overwriteExistingMapLogFile(_testIterableMapping.getHitRateFilePath());
   }
 }
