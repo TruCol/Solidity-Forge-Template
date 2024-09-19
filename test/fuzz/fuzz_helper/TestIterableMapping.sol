@@ -115,27 +115,7 @@ contract TestIterableMapping is PRBTest, StdCheats {
     }
   }
 
-  /** Removes the key-value pair that belongings to the incoming key, from the
-  _map.
-   */
-  function remove(string memory key) public {
-    if (!_map.inserted[key]) {
-      return;
-    }
-
-    delete _map.inserted[key];
-    delete _map.values[key];
-
-    uint256 index = _map.indexOf[key];
-    string memory lastKey = _map.keys[_map.keys.length - 1];
-
-    _map.indexOf[lastKey] = index;
-    delete _map.indexOf[key];
-
-    _map.keys[index] = lastKey;
-    _map.keys.pop();
-  }
-
+  
   /** Exports the current _map to the already existing log file. Throws an error
   if the log file does not yet exist.*/
   function overwriteExistingMapLogFile(string memory hitRateFilePath) public {

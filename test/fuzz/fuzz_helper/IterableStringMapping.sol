@@ -72,24 +72,4 @@ library IterableStringMapping {
     }
   }
 
-  /** Removes the key-value pair that belongings to the incoming key, from the
-  map.
-   */
-  function remove(Map storage map, string memory key) public {
-    if (!map.inserted[key]) {
-      return;
-    }
-
-    delete map.inserted[key];
-    delete map.values[key];
-
-    uint256 index = map.indexOf[key];
-    string memory lastKey = map.keys[map.keys.length - 1];
-
-    map.indexOf[lastKey] = index;
-    delete map.indexOf[key];
-
-    map.keys[index] = lastKey;
-    map.keys.pop();
-  }
 }
