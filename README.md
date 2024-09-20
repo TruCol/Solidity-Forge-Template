@@ -19,6 +19,8 @@ compliance settings, with:
 
 To start your own Solidity project, just fork it and start building.
 
+*If you are here for the fuzz testing look [here](FuzzTesting_shorter.md).*
+
 ## Deployment Prerequisites
 
 ```sh
@@ -197,35 +199,6 @@ forge script script/Deploy.s.sol --broadcast --fork-url http://localhost:8545
 ```
 
 By default, this deploys to the HardHat Chain 31337.
-
-## Fuzz Testing
-
-The hit rates for fuzz testing scenarios can be logged to verify whether the
-fuzz tests were able to hit the targeted tests cases. The logs of the fuzz-test
-scenario hit rates are stored into:
-`test_logging/<some timestamp>/DebugTest.txt`.
-
-You specify in each test file what the log parameters a,b,c etc. represent.
-
-### Example Scenario
-
-You want to test if a function returns the square of prime numbers, but you
-don't want to limit the test cases to "only the primes you can think of", so
-you just get the random numbers:
-\- and if it is a prime, you do the test. (and count with: `found_prime`)
-\- if it is not prime, you do not do the test. (and count with `no_prime`)
-Afterwards, you wanna make sure that your test had at least one case
-of `found_prime`.
-
-This way you can verify your random test indeed actually tested what you wanted
-it to test.
-
-### Current Limitations
-
-I did not find a way to export random parameter names to a file without putting
-a lot of duplicate boiler-plate code into the test file, so instead I wrote a
-generic method that always outputs a,b,..z as log parameters, which can be
-called from any fuzz test.
 
 ## Deploy to Mainnet
 
