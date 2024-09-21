@@ -4,6 +4,7 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { PRBTest } from "@prb/test/src/PRBTest.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
 import { Vm } from "forge-std/src/Vm.sol";
+import "./TestConstants.sol";
 
 error LogFileNotCreated(string message, string fileName);
 error SomeFileDoesNotExist(string message, string fileName);
@@ -15,7 +16,8 @@ interface IWritingToFile {
 
   // solhint-disable-next-line foundry-test-functions
   function createLogFileIfItDoesNotExist(
-    string memory tempFileName,
+    string memory testLogTimestampFilePath,
+    string memory testFunctionName,
     string memory serialisedTextString
   ) external returns (string memory hitRateFilePath);
 
@@ -34,13 +36,19 @@ contract WritingToFile is PRBTest, StdCheats, IWritingToFile {
 
   // solhint-disable-next-line foundry-test-functions
   function createLogFileIfItDoesNotExist(
-    string memory tempFileName,
+    string memory testLogTimestampFilePath,
+    string memory testFunctionName,
     string memory serialisedTextString
   ) public override returns (string memory hitRateFilePath) {
     // Specify the logging directory and filepath.
-    uint256 timeStamp = _createFileIfNotExists(serialisedTextString, tempFileName);
-    string memory logDir = string(abi.encodePacked("test_logging/", Strings.toString(timeStamp)));
-    hitRateFilePath = string(abi.encodePacked(logDir, "/DebugTest.txt"));
+    uint256 timeStamp = _createFileIfNotExists(
+      serialisedTextString,
+      string(abi.encodePacked(testLogTimestampFilePath, ".timestamp"))
+    );
+    string memory logDir = string(abi.encodePacked(testLogTimestampFilePath, "/", Strings.toString(timeStamp)));
+    hitRateFilePath = string(
+      abi.encodePacked(logDir, "/", _TEST_CASE_HIT_RATE_COUNTS_FILENAME, "__", testFunctionName, ".txt")
+    );
 
     // If the log file does not yet exist, create it.
     if (!vm.isFile(hitRateFilePath)) {

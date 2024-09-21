@@ -97,6 +97,8 @@ Afterwards, it can load that new file.
  */
   // solhint-disable-next-line foundry-test-functions
   function createLogIfNotExistAndReadLogData(
+    string memory testLogTimestampFilePath,
+    string memory testFunctionName,
     string[] memory keys,
     uint256[] memory values
   ) public returns (string memory hitRateFilePath) {
@@ -104,7 +106,11 @@ Afterwards, it can load that new file.
     // Output hit rates to file if they do not exist yet.
     string memory serialisedTextString = convertHitRatesToString(keys, values);
     WritingToFile writingToFile = new WritingToFile();
-    hitRateFilePath = writingToFile.createLogFileIfItDoesNotExist(_LOG_TIME_CREATOR, serialisedTextString);
+    hitRateFilePath = writingToFile.createLogFileIfItDoesNotExist(
+      testLogTimestampFilePath,
+      testFunctionName,
+      serialisedTextString
+    );
     return (hitRateFilePath);
   }
 

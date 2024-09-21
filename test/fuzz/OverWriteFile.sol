@@ -63,7 +63,7 @@ contract OverWriteFile is PRBTest, StdCheats {
 
   function testStringReplacementInFile() public {
     // Step 1: Read the file content into a string
-    string memory filePath = "./test_logging/test_file.txt";
+    string memory filePath = "./test_logging/replacements.txt";
     string memory fileContents = vm.readFile(filePath);
 
     // Step 2: Call the replaceString function to modify the content

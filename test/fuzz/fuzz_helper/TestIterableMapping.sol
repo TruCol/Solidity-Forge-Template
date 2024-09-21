@@ -24,7 +24,7 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { PRBTest } from "@prb/test/src/PRBTest.sol";
 import { console2 } from "forge-std/src/console2.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
-import { Vm } from "forge-std/src/Vm.sol";
+import "forge-std/src/Vm.sol";
 import "test/TestConstants.sol";
 import { IterableUint256Mapping } from "./IterableUint256Mapping.sol";
 import { TestCaseHitRateLoggerToFile } from "./TestCaseHitRateLoggerToFile.sol";
@@ -67,9 +67,9 @@ contract TestIterableMapping is PRBTest, StdCheats {
   string private _hitRateFilePath;
   LogParams private _logParams;
 
-  constructor() {
+  constructor(string memory testLogTimestampFilePath, string memory testFunctionName) {
     _testCaseHitRateLoggerToFile = new TestCaseHitRateLoggerToFile();
-    _hitRateFilePath = initialiseMapping();
+    _hitRateFilePath = initialiseMapping(testLogTimestampFilePath, testFunctionName);
   }
 
   function get(string memory key) public view returns (uint256) {
@@ -120,7 +120,10 @@ into a struct, and then converts that struct into this _uint256Mapping.
   }
 
   // TODO: make private.
-  function initialiseMapping() public returns (string memory hitRateFilePath) {
+  function initialiseMapping(
+    string memory testLogTimestampFilePath,
+    string memory testFunctionName
+  ) public returns (string memory hitRateFilePath) {
     _logParams = LogParams({
       a: 0,
       b: 0,
@@ -155,6 +158,8 @@ into a struct, and then converts that struct into this _uint256Mapping.
     // This should just be to get the hitRateFilePath because the data should
     // already exist.
     hitRateFilePath = _testCaseHitRateLoggerToFile.createLogIfNotExistAndReadLogData(
+      testLogTimestampFilePath,
+      testFunctionName,
       _uint256Map.getKeys(),
       _uint256Map.getValues()
     );
