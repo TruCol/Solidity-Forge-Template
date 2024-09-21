@@ -3,7 +3,7 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { PRBTest } from "@prb/test/src/PRBTest.sol";
 import { console2 } from "forge-std/src/console2.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
-import "forge-std/src/Vm.sol";
+import { Vm } from "forge-std/src/Vm.sol";
 import "test/TestConstants.sol";
 import { WritingToFile } from "./../../WritingToFile.sol";
 error InvalidExportLogMapError(string message, string[] keys, uint256[] values, uint256);

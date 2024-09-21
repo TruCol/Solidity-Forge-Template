@@ -3,7 +3,7 @@ pragma solidity >=0.8.26 <0.9.0;
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { PRBTest } from "@prb/test/src/PRBTest.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
-import "forge-std/src/Vm.sol";
+import { Vm } from "forge-std/src/Vm.sol";
 
 error LogFileNotCreated(string message, string fileName);
 error SomeFileDoesNotExist(string message, string fileName);
@@ -24,20 +24,6 @@ interface IWritingToFile {
 }
 
 contract WritingToFile is PRBTest, StdCheats, IWritingToFile {
-  // solhint-disable-next-line foundry-test-functions
-  function _createFileIfNotExists(
-    string memory serialisedTextString,
-    string memory filePath
-  ) internal returns (uint256 lastModified) {
-    if (!vm.isFile(filePath)) {
-      overwriteFileContent(serialisedTextString, filePath);
-    }
-    if (!vm.isFile(filePath)) {
-      revert SomeFileNotCreated("Some file not created.", filePath);
-    }
-    return vm.fsMetadata(filePath).modified;
-  }
-
   // solhint-disable-next-line foundry-test-functions
   function overwriteFileContent(string memory serialisedTextString, string memory filePath) public override {
     vm.writeJson(serialisedTextString, filePath);
@@ -75,5 +61,19 @@ contract WritingToFile is PRBTest, StdCheats, IWritingToFile {
     string memory fileContent = vm.readFile(path);
     data = vm.parseJson(fileContent);
     return data;
+  }
+
+  // solhint-disable-next-line foundry-test-functions
+  function _createFileIfNotExists(
+    string memory serialisedTextString,
+    string memory filePath
+  ) internal returns (uint256 lastModified) {
+    if (!vm.isFile(filePath)) {
+      overwriteFileContent(serialisedTextString, filePath);
+    }
+    if (!vm.isFile(filePath)) {
+      revert SomeFileNotCreated("Some file not created.", filePath);
+    }
+    return vm.fsMetadata(filePath).modified;
   }
 }

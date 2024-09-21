@@ -3,7 +3,7 @@ pragma solidity >=0.8.25 <0.9.0;
 import { PRBTest } from "@prb/test/src/PRBTest.sol";
 import { console2 } from "forge-std/src/console2.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
-import "forge-std/src/Vm.sol";
+import { Vm } from "forge-std/src/Vm.sol";
 
 contract OverWriteFile is PRBTest, StdCheats {
   // Function to replace occurrences of string a with string b

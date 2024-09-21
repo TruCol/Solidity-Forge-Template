@@ -3,7 +3,7 @@ pragma solidity >=0.8.26 <0.9.0;
 
 import { PRBTest } from "@prb/test/src/PRBTest.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
-import "forge-std/src/Vm.sol";
+import { Vm } from "forge-std/src/Vm.sol";
 import { Main } from "./../../src/Main.sol";
 
 interface ITestAddTwo {
