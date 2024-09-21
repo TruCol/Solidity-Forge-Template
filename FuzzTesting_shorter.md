@@ -10,7 +10,8 @@ Fuzz testing runs tests with random inputs.
 
 ## Problem
 
-Specifying random inputs (e.g., prime numbers, ranges) can become complex with multiple variables, making it hard to cover all test cases.
+Specifying random inputs (e.g., prime numbers, ranges) can become complex with
+multiple variables, making it hard to cover all test cases.
 
 ### Options
 
@@ -46,7 +47,8 @@ Testing if a function returns the square of prime numbers:
 - For non-primes: skip and count `no_prime`.
 - Ensure at least one `found_prime` was tested.
 
-Logs are stored in `test_logging/<timestamp>/DebugTest.txt`, with parameters like a, b, c.
+Logs are stored in `test_logging/<timestamp>/DebugTest.txt`, with parameters
+like a, b, c.
 
 ### Limitations
 

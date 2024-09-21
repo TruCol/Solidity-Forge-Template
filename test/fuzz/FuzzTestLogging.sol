@@ -13,16 +13,7 @@ import { IterableStringMapping } from "./fuzz_helper/IterableStringMapping.sol";
 import { TestIterableMapping } from "./fuzz_helper/TestIterableMapping.sol";
 import { TestMathHelper } from "./fuzz_helper/TestMathHelper.sol";
 
-struct HitRatesReturnAll {
-  uint256 largeValue;
-  uint256 smallValue;
-}
-
-interface IFuzzTest {
-  function setUp() external;
-}
-
-contract FuzzTest is PRBTest, StdCheats, IFuzzTest {
+contract FuzzTest is PRBTest, StdCheats {
   using IterableStringMapping for IterableStringMapping.Map;
   IterableStringMapping.Map private _variableNameMapping;
 
@@ -32,7 +23,7 @@ contract FuzzTest is PRBTest, StdCheats, IFuzzTest {
   TestMathHelper private _testMathHelper;
   string private _hitRateFilePath;
 
-  function setUp() public virtual override {
+  function setUp() public virtual {
     _testFileLogging = new TestFileLogging();
     _testMathHelper = new TestMathHelper();
 
@@ -55,10 +46,11 @@ contract FuzzTest is PRBTest, StdCheats, IFuzzTest {
     _logMapping.readHitRatesFromLogFileAndSetToMap(_logMapping.getHitRateFilePath());
 
     if (randomValue > 42) {
-      _logMapping.set(
-        _variableNameMapping.get("LargerThan"),
-        _logMapping.get(_variableNameMapping.get("LargerThan")) + 1
-      );
+      _incrementLogCount(_logMapping, _variableNameMapping, "LargerThan");
+      // _logMapping.set(
+      //   _variableNameMapping.get("LargerThan"),
+      //   _logMapping.get(_variableNameMapping.get("LargerThan")) + 1
+      // );
     } else {
       _logMapping.set(
         _variableNameMapping.get("SmallerThan"),
@@ -70,5 +62,13 @@ contract FuzzTest is PRBTest, StdCheats, IFuzzTest {
     emit Log(_variableNameMapping.get("SmallerThan"));
     emit Log(Strings.toString(_logMapping.get(_variableNameMapping.get("SmallerThan"))));
     _logMapping.overwriteExistingMapLogFile(_logMapping.getHitRateFilePath());
+  }
+
+  function _incrementLogCount(
+    TestIterableMapping logMapping,
+    IterableStringMapping.Map storage variableNameMapping,
+    string memory variableName
+  ) internal virtual {
+    logMapping.set(variableNameMapping.get(variableName), logMapping.get(variableNameMapping.get(variableName)) + 1);
   }
 }
