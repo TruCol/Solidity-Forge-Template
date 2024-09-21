@@ -11,7 +11,6 @@ import "test/TestConstants.sol";
 import { TestFileLogging } from "./../TestFileLogging.sol";
 import { IterableStringMapping } from "./fuzz_helper/IterableStringMapping.sol";
 import { TestIterableMapping } from "./fuzz_helper/TestIterableMapping.sol";
-import { TestMathHelper } from "./fuzz_helper/TestMathHelper.sol";
 
 contract FuzzTest is PRBTest, StdCheats {
   using IterableStringMapping for IterableStringMapping.Map;
@@ -20,12 +19,10 @@ contract FuzzTest is PRBTest, StdCheats {
   TestIterableMapping private _logMapping;
   TestFileLogging private _testFileLogging;
 
-  TestMathHelper private _testMathHelper;
   string private _hitRateFilePath;
 
   function setUp() public virtual {
     _testFileLogging = new TestFileLogging();
-    _testMathHelper = new TestMathHelper();
 
     // Delete the temp file.
     if (vm.isFile(_LOG_TIME_CREATOR)) {
