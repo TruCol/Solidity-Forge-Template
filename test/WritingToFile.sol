@@ -52,7 +52,7 @@ contract WritingToFile is PRBTest, StdCheats, IWritingToFile {
     string memory serialisedTextString
   ) public override returns (string memory hitRateFilePath) {
     // Specify the logging directory and filepath.
-    uint256 timeStamp = createFileIfNotExists(serialisedTextString, tempFileName);
+    uint256 timeStamp = _createFileIfNotExists(serialisedTextString, tempFileName);
     string memory logDir = string(abi.encodePacked("test_logging/", Strings.toString(timeStamp)));
     hitRateFilePath = string(abi.encodePacked(logDir, "/DebugTest.txt"));
 
