@@ -9,13 +9,7 @@ error LogFileNotCreated(string message, string fileName);
 error SomeFileDoesNotExist(string message, string fileName);
 error SomeFileNotCreated(string message, string fileName);
 
-interface ITestFileLogging {
-  // solhint-disable-next-line foundry-test-functions
-  function createFileIfNotExists(
-    string memory serialisedTextString,
-    string memory filePath
-  ) external returns (uint256 lastModified);
-
+interface IWritingToFile {
   // solhint-disable-next-line foundry-test-functions
   function overwriteFileContent(string memory serialisedTextString, string memory filePath) external;
 
@@ -29,12 +23,12 @@ interface ITestFileLogging {
   function readDataFromFile(string memory path) external view returns (bytes memory data);
 }
 
-contract TestFileLogging is PRBTest, StdCheats, ITestFileLogging {
+contract WritingToFile is PRBTest, StdCheats, IWritingToFile {
   // solhint-disable-next-line foundry-test-functions
-  function createFileIfNotExists(
+  function _createFileIfNotExists(
     string memory serialisedTextString,
     string memory filePath
-  ) public override returns (uint256 lastModified) {
+  ) internal returns (uint256 lastModified) {
     if (!vm.isFile(filePath)) {
       overwriteFileContent(serialisedTextString, filePath);
     }

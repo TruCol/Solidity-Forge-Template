@@ -5,7 +5,6 @@ import { PRBTest } from "@prb/test/src/PRBTest.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
 import { Vm } from "forge-std/src/Vm.sol";
 import "test/TestConstants.sol";
-import { TestFileLogging } from "./../TestFileLogging.sol";
 import { IterableStringMapping } from "./fuzz_helper/IterableStringMapping.sol";
 import { TestIterableMapping } from "./fuzz_helper/TestIterableMapping.sol";
 
@@ -14,13 +13,10 @@ contract FuzzTest is PRBTest, StdCheats {
   IterableStringMapping.Map private _variableNameMapping;
 
   TestIterableMapping private _logMapping;
-  TestFileLogging private _testFileLogging;
 
   string private _hitRateFilePath;
 
   function setUp() public virtual {
-    _testFileLogging = new TestFileLogging();
-
     // Delete the temp file.
     if (vm.isFile(_LOG_TIME_CREATOR)) {
       vm.removeFile(_LOG_TIME_CREATOR);

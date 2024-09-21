@@ -5,9 +5,10 @@ import { console2 } from "forge-std/src/console2.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
 import "forge-std/src/Vm.sol";
 import "test/TestConstants.sol";
+import { WritingToFile } from "./../../WritingToFile.sol";
 error InvalidExportLogMapError(string message, string[] keys, uint256[] values, uint256);
 
-contract TestFileLogging is PRBTest, StdCheats {
+contract TestCaseHitRateLoggerToFile is PRBTest, StdCheats {
   /**
     @dev This is a function stores the log elements used to verify each test case in the fuzz test is reached.
      */
@@ -83,47 +84,11 @@ contract TestFileLogging is PRBTest, StdCheats {
     return jsonData;
   }
 
-  function createFileIfNotExists(
-    string memory serialisedTextString,
-    string memory filePath
-  ) public returns (uint256 lastModified) {
-    if (!vm.isFile(filePath)) {
-      overwriteFileContent(serialisedTextString, filePath);
-    }
-    if (!vm.isFile(filePath)) {
-      revert("File does not exist.");
-    }
-    return vm.fsMetadata(filePath).modified;
-  }
-
   function overwriteFileContent(string memory serialisedTextString, string memory filePath) public {
     vm.writeJson(serialisedTextString, filePath);
     if (!vm.isFile(filePath)) {
       revert("File does not exist.");
     }
-  }
-
-  function createLogFileIfItDoesNotExist(
-    string memory tempFileName,
-    string memory serialisedTextString
-  ) public returns (string memory hitRateFilePath) {
-    // Specify the logging directory and filepath.
-    uint256 timeStamp = createFileIfNotExists(serialisedTextString, tempFileName);
-    string memory logDir = string(abi.encodePacked("test_logging/", Strings.toString(timeStamp)));
-    hitRateFilePath = string(abi.encodePacked(logDir, "/DebugTest.txt"));
-
-    // If the log file does not yet exist, create it.
-    if (!vm.isFile(hitRateFilePath)) {
-      // Create logging structure
-      vm.createDir(logDir, true);
-      overwriteFileContent(serialisedTextString, hitRateFilePath);
-
-      // Assort logging file exists.
-      if (!vm.isFile(hitRateFilePath)) {
-        revert("LogFile not created.");
-      }
-    }
-    return hitRateFilePath;
   }
 
   /**
@@ -138,7 +103,8 @@ Afterwards, it can load that new file.
     // initialiseHitRates();
     // Output hit rates to file if they do not exist yet.
     string memory serialisedTextString = convertHitRatesToString(keys, values);
-    hitRateFilePath = createLogFileIfItDoesNotExist(_LOG_TIME_CREATOR, serialisedTextString);
+    WritingToFile writingToFile = new WritingToFile();
+    hitRateFilePath = writingToFile.createLogFileIfItDoesNotExist(_LOG_TIME_CREATOR, serialisedTextString);
     return (hitRateFilePath);
   }
 

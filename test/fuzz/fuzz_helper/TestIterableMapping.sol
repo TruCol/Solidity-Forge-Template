@@ -27,7 +27,7 @@ import { StdCheats } from "forge-std/src/StdCheats.sol";
 import "forge-std/src/Vm.sol";
 import "test/TestConstants.sol";
 import { IterableUint256Mapping } from "./IterableUint256Mapping.sol";
-import { TestFileLogging } from "./TestFileLogging.sol";
+import { TestCaseHitRateLoggerToFile } from "./TestCaseHitRateLoggerToFile.sol";
 /**
 Stores the counters used to track how often the different branches of the tests are covered.*/
 struct LogParams {
@@ -63,12 +63,12 @@ contract TestIterableMapping is PRBTest, StdCheats {
   using IterableUint256Mapping for IterableUint256Mapping.Map;
   IterableUint256Mapping.Map private _uint256Map;
 
-  TestFileLogging private _testFileLogging;
+  TestCaseHitRateLoggerToFile private _testCaseHitRateLoggerToFile;
   string private _hitRateFilePath;
   LogParams private _logParams;
 
   constructor() {
-    _testFileLogging = new TestFileLogging();
+    _testCaseHitRateLoggerToFile = new TestCaseHitRateLoggerToFile();
     _hitRateFilePath = initialiseMapping();
   }
 
@@ -96,12 +96,12 @@ contract TestIterableMapping is PRBTest, StdCheats {
   if the log file does not yet exist.*/
   function overwriteExistingMapLogFile(string memory hitRateFilePath) public {
     // TODO: assert the file already exists, throw error if file does not yet exist.
-    string memory serialisedTextString = _testFileLogging.convertHitRatesToString(
+    string memory serialisedTextString = _testCaseHitRateLoggerToFile.convertHitRatesToString(
       _uint256Map.getKeys(),
       _uint256Map.getValues()
     );
     // overwriteFileContent(serialisedTextString, hitRateFilePath);
-    _testFileLogging.overwriteFileContent(serialisedTextString, hitRateFilePath);
+    _testCaseHitRateLoggerToFile.overwriteFileContent(serialisedTextString, hitRateFilePath);
     // TODO: assert the log filecontent equals the current _uint256Mapping values.
   }
 
@@ -109,7 +109,7 @@ contract TestIterableMapping is PRBTest, StdCheats {
 into a struct, and then converts that struct into this _uint256Mapping.
  */
   function readHitRatesFromLogFileAndSetToMap(string memory hitRateFilePath) public {
-    bytes memory data = _testFileLogging.readLogData(hitRateFilePath);
+    bytes memory data = _testCaseHitRateLoggerToFile.readLogData(hitRateFilePath);
     abi.decode(data, (LogParams));
     // Unpack sorted HitRate data from file into HitRatesReturnAll object.
     LogParams memory readLogParams = abi.decode(data, (LogParams));
@@ -154,7 +154,7 @@ into a struct, and then converts that struct into this _uint256Mapping.
 
     // This should just be to get the hitRateFilePath because the data should
     // already exist.
-    hitRateFilePath = _testFileLogging.createLogIfNotExistAndReadLogData(
+    hitRateFilePath = _testCaseHitRateLoggerToFile.createLogIfNotExistAndReadLogData(
       _uint256Map.getKeys(),
       _uint256Map.getValues()
     );
