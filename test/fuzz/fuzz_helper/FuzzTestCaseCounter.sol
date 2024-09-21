@@ -59,7 +59,7 @@ struct LogParams {
   uint256 z;
 }
 
-contract TestIterableMapping is PRBTest, StdCheats {
+contract FuzzTestCaseCounter is PRBTest, StdCheats {
   using IterableUint256Mapping for IterableUint256Mapping.Map;
   IterableUint256Mapping.Map private _uint256Map;
 

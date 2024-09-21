@@ -43,7 +43,7 @@ contract WritingToFile is PRBTest, StdCheats, IWritingToFile {
     // Specify the logging directory and filepath.
     uint256 timeStamp = _createFileIfNotExists(
       serialisedTextString,
-      string(abi.encodePacked(testLogTimestampFilePath, ".timestamp"))
+      string(abi.encodePacked(testLogTimestampFilePath, _TIMESTAMP_FILE_EXT))
     );
     string memory logDir = string(abi.encodePacked(testLogTimestampFilePath, "/", Strings.toString(timeStamp)));
     hitRateFilePath = string(

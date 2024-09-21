@@ -5,54 +5,49 @@ import { PRBTest } from "@prb/test/src/PRBTest.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
 import { Vm } from "forge-std/src/Vm.sol";
 import "test/TestConstants.sol";
+import { FuzzTestCaseCounter } from "./fuzz_helper/FuzzTestCaseCounter.sol";
 import { IterableStringMapping } from "./fuzz_helper/IterableStringMapping.sol";
-import { TestIterableMapping } from "./fuzz_helper/TestIterableMapping.sol";
 
 contract FuzzTestWithHitRateAssertion is PRBTest, StdCheats {
   using IterableStringMapping for IterableStringMapping.Map;
   IterableStringMapping.Map private _variableNameMapping;
 
-  TestIterableMapping private _logMapping;
+  FuzzTestCaseCounter private _logMapping;
 
   string private _hitRateFilePath;
 
   /** The setUp() method is called once each fuzz run.*/
   function setUp() public virtual {
+    // Specify the path to this file, the test file name, and the fuzz test name, used for test case coverage logging.
     string memory relBareFolderPath = "test_logging/fuzz";
     string memory fileNameWithoutExt = "FuzzTestWithHitRateAssertion";
     string memory testFunctionName = "testFuzzWithHitRateAssertion";
     string memory relTestLogTimestampFilePath = string(abi.encodePacked(relBareFolderPath, "/", fileNameWithoutExt));
-    emit Log("relTestLogTimestampFilePath=");
-    emit Log(relTestLogTimestampFilePath);
-    vm.createDir(relTestLogTimestampFilePath, true);
+
+    // Create those directories that will contain the test coverage timestamp and logging files.
     vm.createDir(relBareFolderPath, true);
+    vm.createDir(relTestLogTimestampFilePath, true);
 
-    // Delete the temp file at the start of running this test file.
-    // if (vm.isFile(_LOG_TIME_CREATOR)) {
-    if (vm.isFile(relTestLogTimestampFilePath)) {
-      vm.removeFile(relTestLogTimestampFilePath);
-      /** The _LOG_TIME_CREATOR file is recreated if it does not exist in: `new
-      TestIterableMapping()` and then the timestamp of that file is taken as
-      the log dir for that fuzz run.
-
-      If the setUp() function would be called before each fuzz run, then it
-      would (likely) create 1000 different timestamps if 1000 fuzz runs were
-      ran.
-
-      If the setUp() function would be called once before each fuzz run, then
-      the _LOG_TIME_CREATOR file would be created by the first Fuzz run of a
-      fuzz test.*/
+    /** I do not know exactly why, but per file, this yields a single timestamp regardless of how many fuzz runs are
+    ran per test function. (As long as 1 fuzz test per file is used).*/
+    if (vm.isFile(string(abi.encodePacked(relTestLogTimestampFilePath, _TIMESTAMP_FILE_EXT)))) {
+      vm.removeFile(string(abi.encodePacked(relTestLogTimestampFilePath, _TIMESTAMP_FILE_EXT)));
     }
-    _logMapping = new TestIterableMapping(relTestLogTimestampFilePath, testFunctionName);
+    // Set up test case hit counter logging.
+    _logMapping = new FuzzTestCaseCounter(relTestLogTimestampFilePath, testFunctionName);
 
+    // Specify which test cases are logged within this test file.
     _variableNameMapping.set("LargerThan", "a");
     _variableNameMapping.set("SmallerThan", "b");
     _variableNameMapping.set("Total", "c");
   }
 
-  /**
-  @dev The investor has invested 0.5 eth, and the investment target is 0.6 eth after 12 weeks.
-  So the investment target is not reached, so all the funds should be returned.
+  /** Example of a basic fuzz test with a random variable. After the test, you can go to:
+
+  <test_logging>/<relative path towards this file from test/><timestamp of the fuzz run>/
+  <this_filename__this_test_function_name>_counter.txt
+
+  to see how often each test case was hit.
    */
   function testFuzzDebugtestFuzzWithHitRateAssertion(uint256 randomValue) public virtual {
     _logMapping.readHitRatesFromLogFileAndSetToMap(_logMapping.getHitRateFilePath());
@@ -66,8 +61,10 @@ contract FuzzTestWithHitRateAssertion is PRBTest, StdCheats {
     _logMapping.overwriteExistingMapLogFile(_logMapping.getHitRateFilePath());
   }
 
+  /**Increments the test case hit counts in the testIterableMapping
+   */
   function _incrementLogCount(
-    TestIterableMapping logMapping,
+    FuzzTestCaseCounter logMapping,
     IterableStringMapping.Map storage variableNameMapping,
     string memory variableName
   ) internal virtual {

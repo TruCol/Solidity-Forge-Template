@@ -5,14 +5,14 @@ import { PRBTest } from "@prb/test/src/PRBTest.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
 import { Vm } from "forge-std/src/Vm.sol";
 import "test/TestConstants.sol";
+import { FuzzTestCaseCounter } from "./fuzz_helper/FuzzTestCaseCounter.sol";
 import { IterableStringMapping } from "./fuzz_helper/IterableStringMapping.sol";
-import { TestIterableMapping } from "./fuzz_helper/TestIterableMapping.sol";
 
 contract FuzzTestWithHitRateAssertionCopy is PRBTest, StdCheats {
   using IterableStringMapping for IterableStringMapping.Map;
   IterableStringMapping.Map private _variableNameMapping;
 
-  TestIterableMapping private _logMapping;
+  FuzzTestCaseCounter private _logMapping;
 
   string private _hitRateFilePath;
 
@@ -32,7 +32,7 @@ contract FuzzTestWithHitRateAssertionCopy is PRBTest, StdCheats {
     if (vm.isFile(relTestLogTimestampFilePath)) {
       vm.removeFile(relTestLogTimestampFilePath);
       /** The _LOG_TIME_CREATOR file is recreated if it does not exist in: `new
-      TestIterableMapping()` and then the timestamp of that file is taken as
+      FuzzTestCaseCounter()` and then the timestamp of that file is taken as
       the log dir for that fuzz run.
 
       If the setUp() function would be called before each fuzz run, then it
@@ -43,7 +43,7 @@ contract FuzzTestWithHitRateAssertionCopy is PRBTest, StdCheats {
       the _LOG_TIME_CREATOR file would be created by the first Fuzz run of a
       fuzz test.*/
     }
-    _logMapping = new TestIterableMapping(relTestLogTimestampFilePath, testFunctionName);
+    _logMapping = new FuzzTestCaseCounter(relTestLogTimestampFilePath, testFunctionName);
 
     _variableNameMapping.set("LargerThan", "a");
     _variableNameMapping.set("SmallerThan", "b");
@@ -67,7 +67,7 @@ contract FuzzTestWithHitRateAssertionCopy is PRBTest, StdCheats {
   }
 
   function _incrementLogCount(
-    TestIterableMapping logMapping,
+    FuzzTestCaseCounter logMapping,
     IterableStringMapping.Map storage variableNameMapping,
     string memory variableName
   ) internal virtual {
