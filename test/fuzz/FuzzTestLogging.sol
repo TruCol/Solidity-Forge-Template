@@ -47,20 +47,10 @@ contract FuzzTest is PRBTest, StdCheats {
 
     if (randomValue > 42) {
       _incrementLogCount(_logMapping, _variableNameMapping, "LargerThan");
-      // _logMapping.set(
-      //   _variableNameMapping.get("LargerThan"),
-      //   _logMapping.get(_variableNameMapping.get("LargerThan")) + 1
-      // );
     } else {
-      _logMapping.set(
-        _variableNameMapping.get("SmallerThan"),
-        _logMapping.get(_variableNameMapping.get("SmallerThan")) + 1
-      );
+      _incrementLogCount(_logMapping, _variableNameMapping, "SmallerThan");
     }
-    _logMapping.set(_variableNameMapping.get("Total"), _logMapping.get(_variableNameMapping.get("Total")) + 1);
-    emit Log("Overwriting with:");
-    emit Log(_variableNameMapping.get("SmallerThan"));
-    emit Log(Strings.toString(_logMapping.get(_variableNameMapping.get("SmallerThan"))));
+    _incrementLogCount(_logMapping, _variableNameMapping, "Total");
     _logMapping.overwriteExistingMapLogFile(_logMapping.getHitRateFilePath());
   }
 
