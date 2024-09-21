@@ -1,6 +1,6 @@
 pragma solidity >=0.8.26 <0.9.0;
 
-import "@openzeppelin/contracts/utils/Strings.sol";
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { PRBTest } from "@prb/test/src/PRBTest.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
 import "forge-std/src/Vm.sol";
