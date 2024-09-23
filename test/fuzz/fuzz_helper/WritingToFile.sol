@@ -4,7 +4,7 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { PRBTest } from "@prb/test/src/PRBTest.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
 import { Vm } from "forge-std/src/Vm.sol";
-import "./TestConstants.sol";
+import "./../../TestConstants.sol";
 
 error LogFileNotCreated(string message, string fileName);
 error SomeFileDoesNotExist(string message, string fileName);
