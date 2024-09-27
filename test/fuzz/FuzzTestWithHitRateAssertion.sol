@@ -7,6 +7,7 @@ import { Vm } from "forge-std/src/Vm.sol";
 import "test/TestConstants.sol";
 import { FuzzTestCaseCounter } from "./fuzz_helper/FuzzTestCaseCounter.sol";
 import { IterableStringMapping } from "./fuzz_helper/IterableStringMapping.sol";
+import { SetupInitialisation } from "./fuzz_helper/SetupInitialisation.sol";
 
 contract FuzzTestWithHitRateAssertion is PRBTest, StdCheats {
   using IterableStringMapping for IterableStringMapping.Map;
@@ -18,23 +19,18 @@ contract FuzzTestWithHitRateAssertion is PRBTest, StdCheats {
 
   /** The setUp() method is called once each fuzz run.*/
   function setUp() public virtual {
-    // Specify the path to this file, the test file name, and the fuzz test name, used for test case coverage logging.
-    string memory relBareFolderPath = "test_logging/fuzz";
+    // Specify this testfilepath and fuzz test function for logging purposes.
     string memory fileNameWithoutExt = "FuzzTestWithHitRateAssertion";
     string memory testFunctionName = "testFuzzWithHitRateAssertion";
-    string memory relTestLogTimestampFilePath = string(abi.encodePacked(relBareFolderPath, "/", fileNameWithoutExt));
+    string memory relFilePathAfterTestDir = string(abi.encodePacked("fuzz"));
 
-    // Create those directories that will contain the test coverage timestamp and logging files.
-    vm.createDir(relBareFolderPath, true);
-    vm.createDir(relTestLogTimestampFilePath, true);
-
-    /** I do not know exactly why, but per file, this yields a single timestamp regardless of how many fuzz runs are
-    ran per test function. (As long as 1 fuzz test per file is used).*/
-    if (vm.isFile(string(abi.encodePacked(relTestLogTimestampFilePath, _TIMESTAMP_FILE_EXT)))) {
-      vm.removeFile(string(abi.encodePacked(relTestLogTimestampFilePath, _TIMESTAMP_FILE_EXT)));
-    }
-    // Set up test case hit counter logging.
-    _logMapping = new FuzzTestCaseCounter(relTestLogTimestampFilePath, testFunctionName);
+    // Set up the hit rate logging structure.
+    SetupInitialisation setupInitialisation = new SetupInitialisation();
+    _logMapping = setupInitialisation.setupFuzzCaseHitLogging(
+      fileNameWithoutExt,
+      testFunctionName,
+      relFilePathAfterTestDir
+    );
 
     // Specify which test cases are logged within this test file.
     _variableNameMapping.set("LargerThan", "a");

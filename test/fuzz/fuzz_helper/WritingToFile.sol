@@ -9,6 +9,7 @@ import "./../../TestConstants.sol";
 error LogFileNotCreated(string message, string fileName);
 error SomeFileDoesNotExist(string message, string fileName);
 error SomeFileNotCreated(string message, string fileName);
+error SomeDirDoesNotExist(string message, string fileName);
 
 interface IWritingToFile {
   // solhint-disable-next-line foundry-test-functions
@@ -69,6 +70,18 @@ contract WritingToFile is PRBTest, StdCheats, IWritingToFile {
     string memory fileContent = vm.readFile(path);
     data = vm.parseJson(fileContent);
     return data;
+  }
+
+  function assertRelativeFileExists(string memory relativeFilePath) public {
+    if (!vm.isFile(relativeFilePath)) {
+      revert SomeFileDoesNotExist("The file does not exist.", relativeFilePath);
+    }
+  }
+
+  function assertRelativeDirExists(string memory relativeFolderPath) public {
+    if (!vm.isDir(relativeFolderPath)) {
+      revert SomeDirDoesNotExist("The file does not exist.", relativeFolderPath);
+    }
   }
 
   // solhint-disable-next-line foundry-test-functions

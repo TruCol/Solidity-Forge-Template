@@ -32,3 +32,6 @@ uint32 constant _MAX_NR_OF_TEST_LOG_VALUES_PER_LOG_FILE = 26;
 
 string constant _TEST_CASE_HIT_RATE_COUNTS_FILENAME = "test_case_hit_rate_counts";
 string constant _TIMESTAMP_FILE_EXT = ".timestamp";
+
+string constant _FUZZ_TEST_LOGGING_DIR_NAME = "test_logging";
+string constant _TEST_DIR_NAME = "test";
