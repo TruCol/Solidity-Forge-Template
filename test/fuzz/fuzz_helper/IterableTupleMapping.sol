@@ -96,8 +96,7 @@ library IterableTupleMapping {
     return false;
   }
 
-  /**Increments the test case hit counts in the testIterableMapping
-   */
+  /** Increments the test case hit counts in the testIterableMapping. */
   function incrementLogCount(Map storage map, string memory variableName) public {
     if (variableIsStored(map, variableName)) {
       uint256 currentCount = getCurrentCount(map, variableName);

@@ -38,7 +38,7 @@ contract FuzzTestWithHitRateAssertion is PRBTest, StdCheats {
   <test_logging>/<relative path towards this file from test/><timestamp of the fuzz run>/
   <this_filename__this_test_function_name>_counter.txt
 
-  to see how often each test case was hit.
+    to see how often each test case was hit.
    */
   function testFuzzCaseLogging(uint256 randomValue) public virtual {
     _logMapping.readHitRatesFromLogFileAndSetToMap(_logMapping.getHitRateFilePath());

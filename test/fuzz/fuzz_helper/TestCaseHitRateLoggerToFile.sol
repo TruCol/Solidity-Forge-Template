@@ -1,12 +1,13 @@
 pragma solidity >=0.8.25 <0.9.0;
-import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { PRBTest } from "@prb/test/src/PRBTest.sol";
-import { console2 } from "forge-std/src/console2.sol";
-import { StdCheats } from "forge-std/src/StdCheats.sol";
-import { Vm } from "forge-std/src/Vm.sol";
-import "test/TestConstants.sol";
-import { WritingToFile } from "./WritingToFile.sol";
-error InvalidExportLogMapError(string message, string[] keys, uint256[] values, uint256);
+import { Strings } from '@openzeppelin/contracts/utils/Strings.sol';
+import { PRBTest } from '@prb/test/src/PRBTest.sol';
+import { console2 } from 'forge-std/src/console2.sol';
+import { StdCheats } from 'forge-std/src/StdCheats.sol';
+import { Vm } from 'forge-std/src/Vm.sol';
+import 'test/TestConstants.sol';
+import { Tuple } from './Tuple.sol';
+import { WritingToFile } from './WritingToFile.sol';
+error InvalidExportLogMapError(string message, string[] keys, Tuple.StringUint256[] values, uint256);
 
 contract TestCaseHitRateLoggerToFile is PRBTest, StdCheats {
   /**
@@ -16,7 +17,7 @@ contract TestCaseHitRateLoggerToFile is PRBTest, StdCheats {
   function convertHitRatesToString(
     // mapping(bytes32 => uint256) loggingMap
     string[] memory keys,
-    uint256[] memory values
+    Tuple.StringUint256[] memory values
   ) public returns (string memory serialisedTextString) {
     if (keys.length > _MAX_NR_OF_TEST_LOG_VALUES_PER_LOG_FILE) {
       revert InvalidExportLogMapError(
@@ -30,7 +31,13 @@ contract TestCaseHitRateLoggerToFile is PRBTest, StdCheats {
     string memory obj1 = "ThisValueDissapearsIntoTheVoid";
     if (keys.length > 1) {
       for (uint256 i = 0; i < keys.length - 1; i++) {
-        vm.serializeUint(obj1, keys[i], values[i]);
+        string memory tupleString;
+        tupleString = vm.serializeString(obj1, "str", values[i].str);
+        tupleString = vm.serializeUint(obj1, "number", values[i].number);
+        emit Log("AtupleString=");
+        emit Log(tupleString);
+
+        // vm.serializeUint(obj1, keys[i], values[i]);
       }
     }
 
@@ -38,34 +45,45 @@ contract TestCaseHitRateLoggerToFile is PRBTest, StdCheats {
     if (keys.length > 0) {
       uint256 lastKeyIndex = keys.length - 1;
 
-      serialisedTextString = vm.serializeUint(obj1, keys[lastKeyIndex], values[lastKeyIndex]);
+      string memory tupleString;
+      tupleString = vm.serializeString(obj1, "str", values[lastKeyIndex].str);
+      tupleString = vm.serializeUint(obj1, "number", values[lastKeyIndex].number);
+      emit Log("BtupleString=");
+      emit Log(tupleString);
+      // serialisedTextString = vm.serializeUint(obj1, keys[lastKeyIndex], values[lastKeyIndex]);
     } else {
-      serialisedTextString = vm.serializeUint(obj1, "a", values[0]);
-      serialisedTextString = vm.serializeUint(obj1, "b", values[0]);
-      serialisedTextString = vm.serializeUint(obj1, "c", values[0]);
-      serialisedTextString = vm.serializeUint(obj1, "d", values[0]);
-      serialisedTextString = vm.serializeUint(obj1, "e", values[0]);
-      serialisedTextString = vm.serializeUint(obj1, "f", values[0]);
-      serialisedTextString = vm.serializeUint(obj1, "g", values[0]);
-      serialisedTextString = vm.serializeUint(obj1, "h", values[0]);
-      serialisedTextString = vm.serializeUint(obj1, "i", values[0]);
-      serialisedTextString = vm.serializeUint(obj1, "j", values[0]);
-      serialisedTextString = vm.serializeUint(obj1, "k", values[0]);
-      serialisedTextString = vm.serializeUint(obj1, "l", values[0]);
-      serialisedTextString = vm.serializeUint(obj1, "m", values[0]);
-      serialisedTextString = vm.serializeUint(obj1, "n", values[0]);
-      serialisedTextString = vm.serializeUint(obj1, "o", values[0]);
-      serialisedTextString = vm.serializeUint(obj1, "p", values[0]);
-      serialisedTextString = vm.serializeUint(obj1, "q", values[0]);
-      serialisedTextString = vm.serializeUint(obj1, "r", values[0]);
-      serialisedTextString = vm.serializeUint(obj1, "s", values[0]);
-      serialisedTextString = vm.serializeUint(obj1, "t", values[0]);
-      serialisedTextString = vm.serializeUint(obj1, "u", values[0]);
-      serialisedTextString = vm.serializeUint(obj1, "v", values[0]);
-      serialisedTextString = vm.serializeUint(obj1, "w", values[0]);
-      serialisedTextString = vm.serializeUint(obj1, "x", values[0]);
-      serialisedTextString = vm.serializeUint(obj1, "y", values[0]);
-      serialisedTextString = vm.serializeUint(obj1, "z", values[0]);
+      string memory tupleString;
+      tupleString = vm.serializeString(obj1, "str", values[0].str);
+      tupleString = vm.serializeUint(obj1, "number", values[0].number);
+      emit Log("CtupleString=");
+      emit Log(tupleString);
+
+      // serialisedTextString = vm.serializeUint(obj1, "a", values[0]);
+      // serialisedTextString = vm.serializeUint(obj1, "b", values[0]);
+      // serialisedTextString = vm.serializeUint(obj1, "c", values[0]);
+      // serialisedTextString = vm.serializeUint(obj1, "d", values[0]);
+      // serialisedTextString = vm.serializeUint(obj1, "e", values[0]);
+      // serialisedTextString = vm.serializeUint(obj1, "f", values[0]);
+      // serialisedTextString = vm.serializeUint(obj1, "g", values[0]);
+      // serialisedTextString = vm.serializeUint(obj1, "h", values[0]);
+      // serialisedTextString = vm.serializeUint(obj1, "i", values[0]);
+      // serialisedTextString = vm.serializeUint(obj1, "j", values[0]);
+      // serialisedTextString = vm.serializeUint(obj1, "k", values[0]);
+      // serialisedTextString = vm.serializeUint(obj1, "l", values[0]);
+      // serialisedTextString = vm.serializeUint(obj1, "m", values[0]);
+      // serialisedTextString = vm.serializeUint(obj1, "n", values[0]);
+      // serialisedTextString = vm.serializeUint(obj1, "o", values[0]);
+      // serialisedTextString = vm.serializeUint(obj1, "p", values[0]);
+      // serialisedTextString = vm.serializeUint(obj1, "q", values[0]);
+      // serialisedTextString = vm.serializeUint(obj1, "r", values[0]);
+      // serialisedTextString = vm.serializeUint(obj1, "s", values[0]);
+      // serialisedTextString = vm.serializeUint(obj1, "t", values[0]);
+      // serialisedTextString = vm.serializeUint(obj1, "u", values[0]);
+      // serialisedTextString = vm.serializeUint(obj1, "v", values[0]);
+      // serialisedTextString = vm.serializeUint(obj1, "w", values[0]);
+      // serialisedTextString = vm.serializeUint(obj1, "x", values[0]);
+      // serialisedTextString = vm.serializeUint(obj1, "y", values[0]);
+      // serialisedTextString = vm.serializeUint(obj1, "z", values[0]);
     }
 
     return serialisedTextString;
@@ -100,7 +118,7 @@ Afterwards, it can load that new file.
     string memory testLogTimestampFilePath,
     string memory testFunctionName,
     string[] memory keys,
-    uint256[] memory values
+    Tuple.StringUint256[] memory values
   ) public returns (string memory hitRateFilePath) {
     // initialiseHitRates();
     // Output hit rates to file if they do not exist yet.
