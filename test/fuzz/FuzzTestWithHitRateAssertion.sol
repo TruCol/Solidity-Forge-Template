@@ -6,12 +6,12 @@ import { StdCheats } from "forge-std/src/StdCheats.sol";
 import { Vm } from "forge-std/src/Vm.sol";
 import "test/TestConstants.sol";
 import { FuzzTestCaseCounter } from "./fuzz_helper/FuzzTestCaseCounter.sol";
-import { IterableStringMapping } from "./fuzz_helper/IterableStringMapping.sol";
+import { IterableTupleMapping } from "./fuzz_helper/IterableTupleMapping.sol";
 import { SetupInitialisation } from "./fuzz_helper/SetupInitialisation.sol";
 
 contract FuzzTestWithHitRateAssertion is PRBTest, StdCheats {
-  using IterableStringMapping for IterableStringMapping.Map;
-  IterableStringMapping.Map private _variableNameMapping;
+  using IterableTupleMapping for IterableTupleMapping.Map;
+  IterableTupleMapping.Map private _tupleMapping;
 
   FuzzTestCaseCounter private _logMapping;
 
@@ -31,11 +31,6 @@ contract FuzzTestWithHitRateAssertion is PRBTest, StdCheats {
       testFunctionName,
       relFilePathAfterTestDir
     );
-
-    // Specify which test cases are logged within this test file.
-    _variableNameMapping.set("LargerThan", "a");
-    _variableNameMapping.set("SmallerThan", "b");
-    _variableNameMapping.set("Total", "c");
   }
 
   /** Example of a basic fuzz test with a random variable. After the test, you can go to:
@@ -49,21 +44,11 @@ contract FuzzTestWithHitRateAssertion is PRBTest, StdCheats {
     _logMapping.readHitRatesFromLogFileAndSetToMap(_logMapping.getHitRateFilePath());
 
     if (randomValue > 42) {
-      _incrementLogCount(_logMapping, _variableNameMapping, "LargerThan");
+      _tupleMapping.incrementLogCount("LargerThan");
     } else {
-      _incrementLogCount(_logMapping, _variableNameMapping, "SmallerThan");
+      _tupleMapping.incrementLogCount("SmallerThan");
     }
-    _incrementLogCount(_logMapping, _variableNameMapping, "Total");
+    _tupleMapping.incrementLogCount("Total");
     _logMapping.overwriteExistingMapLogFile(_logMapping.getHitRateFilePath());
-  }
-
-  /**Increments the test case hit counts in the testIterableMapping
-   */
-  function _incrementLogCount(
-    FuzzTestCaseCounter logMapping,
-    IterableStringMapping.Map storage variableNameMapping,
-    string memory variableName
-  ) internal virtual {
-    logMapping.set(variableNameMapping.get(variableName), logMapping.get(variableNameMapping.get(variableName)) + 1);
   }
 }

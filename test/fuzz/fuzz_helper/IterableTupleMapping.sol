@@ -1,29 +1,11 @@
 pragma solidity >=0.8.25 <0.9.0;
-/**
-  The logging flow is described with:
-    1. Initialise the mapping at all 0 values, and export those to file and set them in the struct.
-    initialiseMapping(_map)
-  Loop:
-    2. The values from the log file are read from file and overwrite those in the mapping.
-    readHitRatesFromLogFileAndSetToMap()
-    3. The code is ran, the mapping values are updated.
-    4. The mapping values are logged to file.
 
-  The mapping key value pairs exist in this map unstorted. Then they are
-  written to a file in a sorted fashion. They are sorted automatically.
-  Then they are read from file in alphabetical order. Since they are read in
-  alphabetical order (automatically), they can stored into the alphabetical
-  keys of the map using a switch case and enumeration (counts as indices).
-
-  TODO: verify the non-alphabetical keys of a mapping are exported to an
-  alphabetical order.
-  TODO: verify the non-alphabetical keys of a file are exported and read into
-  alphabetical order.
-  */
-
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { console2 } from "forge-std/src/console2.sol";
 import "test/TestConstants.sol";
 import { Tuple } from "./Tuple.sol";
+
+error VariableNotFoundError(string message, string variableName);
 
 library IterableTupleMapping {
   struct ValueEntryTuple {
@@ -74,6 +56,58 @@ library IterableTupleMapping {
       map.values[key] = val;
       map.indexOf[key] = map.keys.length;
       map.keys.push(key);
+    }
+  }
+
+  function getCurrentCount(Map storage map, string memory variableName) public returns (uint256 currentCount) {
+    // Loop values.
+    // If a value tuple string equals variableName, get the uint256 of that tuple and return it.
+    // otherwise, return 0.
+    for (uint256 i = 0; i < map.keys.length; i++) {
+      if (keccak256(bytes(map.values[map.keys[i]].str)) == keccak256(bytes(variableName))) {
+        return map.values[map.keys[i]].number;
+      }
+    }
+    return 0;
+  }
+
+  function incrementCount(Map storage map, string memory variableName, uint256 increment) public {
+    // otherwise, return 0.
+    bool foundVariable = false;
+    for (uint256 i = 0; i < map.keys.length; i++) {
+      // If a value tuple string equals variableName, increment its value.
+      if (keccak256(bytes(map.values[map.keys[i]].str)) == keccak256(bytes(variableName))) {
+        map.values[map.keys[i]].number = map.values[map.keys[i]].number + increment;
+        foundVariable = true;
+      }
+    }
+    if (!foundVariable) {
+      revert VariableNotFoundError("Was not able to find variable for incrementation.", variableName);
+    }
+  }
+
+  function variableIsStored(Map storage map, string memory variableName) public returns (bool isStored) {
+    for (uint256 i = 0; i < map.keys.length; i++) {
+      // Per key, get the tuple value, per tuple string, check if it equals the variableName.
+      if (keccak256(bytes(map.values[map.keys[i]].str)) == keccak256(bytes(variableName))) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**Increments the test case hit counts in the testIterableMapping
+   */
+  function incrementLogCount(Map storage map, string memory variableName) public {
+    if (variableIsStored(map, variableName)) {
+      uint256 currentCount = getCurrentCount(map, variableName);
+
+      incrementCount(map, variableName, 1);
+      // uint256 variableLetterKey = getCurrentVariableLetter(variableName);
+    } else {
+      // Store the variable name and 0 value at the next index/letterkey.
+      Tuple.StringUint256 memory newValue = Tuple.StringUint256(variableName, 1);
+      set(map, variableName, newValue);
     }
   }
 }
