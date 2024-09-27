@@ -21,7 +21,7 @@ contract FuzzTestWithHitRateAssertion is PRBTest, StdCheats {
   function setUp() public virtual {
     // Specify this testfilepath and fuzz test function for logging purposes.
     string memory fileNameWithoutExt = "FuzzTestWithHitRateAssertion";
-    string memory testFunctionName = "testFuzzWithHitRateAssertion";
+    string memory testFunctionName = "testFuzzCaseLogging";
     string memory relFilePathAfterTestDir = string(abi.encodePacked("fuzz"));
 
     // Set up the hit rate logging structure.
@@ -45,7 +45,7 @@ contract FuzzTestWithHitRateAssertion is PRBTest, StdCheats {
 
   to see how often each test case was hit.
    */
-  function testFuzzDebugtestFuzzWithHitRateAssertion(uint256 randomValue) public virtual {
+  function testFuzzCaseLogging(uint256 randomValue) public virtual {
     _logMapping.readHitRatesFromLogFileAndSetToMap(_logMapping.getHitRateFilePath());
 
     if (randomValue > 42) {

@@ -22,6 +22,10 @@ contract SetupInitialisation is PRBTest, StdCheats {
       abi.encodePacked(_TEST_DIR_NAME, "/", relFilePathAfterTestDir, "/", fileNameWithoutExt, ".sol")
     );
     writingToFile.assertRelativeFileExists(testFilePath);
+    writingToFile.assertFileContainsSubstring(
+      testFilePath,
+      string(abi.encodePacked("function ", testFunctionName, "("))
+    );
 
     // TODO: assert the specified test function exists in that file.
     string memory relTestLogTimestampFilePath = string(

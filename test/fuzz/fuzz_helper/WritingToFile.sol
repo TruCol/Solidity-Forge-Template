@@ -10,6 +10,7 @@ error LogFileNotCreated(string message, string fileName);
 error SomeFileDoesNotExist(string message, string fileName);
 error SomeFileNotCreated(string message, string fileName);
 error SomeDirDoesNotExist(string message, string fileName);
+error FileDoesNotContainSubstring(string message);
 
 interface IWritingToFile {
   // solhint-disable-next-line foundry-test-functions
@@ -96,5 +97,43 @@ contract WritingToFile is PRBTest, StdCheats, IWritingToFile {
       revert SomeFileNotCreated("Some file not created.", filePath);
     }
     return vm.fsMetadata(filePath).modified;
+  }
+
+  function assertFileContainsSubstring(string memory relFilepath, string memory desiredSubstring) public {
+    if (!fileContainsSubstring(relFilepath, desiredSubstring)) {
+      revert FileDoesNotContainSubstring(
+        string(abi.encodePacked("The file:", relFilepath, " does not contain substring:", desiredSubstring))
+      );
+    }
+  }
+
+  function fileContainsSubstring(string memory relFilepath, string memory desiredSubstring) public returns (bool) {
+    assertRelativeFileExists(relFilepath);
+
+    string memory fileContents = vm.readFile(relFilepath);
+    return containsSubstring(fileContents, desiredSubstring);
+  }
+
+  function containsSubstring(string memory mainStr, string memory subStr) public pure returns (bool) {
+    bytes memory mainBytes = bytes(mainStr);
+    bytes memory subBytes = bytes(subStr);
+
+    if (subBytes.length > mainBytes.length) {
+      return false;
+    }
+
+    for (uint256 i = 0; i <= mainBytes.length - subBytes.length; i++) {
+      bool foundMatch = true;
+      for (uint256 j = 0; j < subBytes.length; j++) {
+        if (mainBytes[i + j] != subBytes[j]) {
+          foundMatch = false;
+          break;
+        }
+      }
+      if (foundMatch) {
+        return true;
+      }
+    }
+    return false;
   }
 }
