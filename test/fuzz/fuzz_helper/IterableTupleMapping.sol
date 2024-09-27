@@ -1,0 +1,79 @@
+pragma solidity >=0.8.25 <0.9.0;
+/**
+  The logging flow is described with:
+    1. Initialise the mapping at all 0 values, and export those to file and set them in the struct.
+    initialiseMapping(_map)
+  Loop:
+    2. The values from the log file are read from file and overwrite those in the mapping.
+    readHitRatesFromLogFileAndSetToMap()
+    3. The code is ran, the mapping values are updated.
+    4. The mapping values are logged to file.
+
+  The mapping key value pairs exist in this map unstorted. Then they are
+  written to a file in a sorted fashion. They are sorted automatically.
+  Then they are read from file in alphabetical order. Since they are read in
+  alphabetical order (automatically), they can stored into the alphabetical
+  keys of the map using a switch case and enumeration (counts as indices).
+
+  TODO: verify the non-alphabetical keys of a mapping are exported to an
+  alphabetical order.
+  TODO: verify the non-alphabetical keys of a file are exported and read into
+  alphabetical order.
+  */
+
+import { console2 } from "forge-std/src/console2.sol";
+import "test/TestConstants.sol";
+import { Tuple } from "./Tuple.sol";
+
+library IterableTupleMapping {
+  struct ValueEntryTuple {
+    Tuple.StringUint256 something;
+    uint256 number;
+  }
+  // Iterable mapping from string[] to uint;
+  struct Map {
+    string[] keys;
+    mapping(string => Tuple.StringUint256) values;
+    mapping(string => uint256) indexOf;
+    mapping(string => bool) inserted;
+  }
+
+  function get(Map storage map, string memory key) public view returns (Tuple.StringUint256 memory someValue) {
+    someValue = map.values[key];
+    return someValue;
+  }
+
+  function getKeys(Map storage map) public view returns (string[] memory) {
+    return map.keys;
+  }
+
+  function getValues(Map storage map) public view returns (Tuple.StringUint256[] memory) {
+    Tuple.StringUint256[] memory listOfValues = new Tuple.StringUint256[](_MAX_NR_OF_TEST_LOG_VALUES_PER_LOG_FILE);
+
+    if (map.keys.length > 1) {
+      for (uint256 i = 0; i < map.keys.length; i++) {
+        listOfValues[i] = map.values[map.keys[i]];
+      }
+    }
+    return listOfValues;
+  }
+
+  function getKeyAtIndex(Map storage map, uint256 index) public view returns (string memory) {
+    return map.keys[index];
+  }
+
+  function size(Map storage map) public view returns (uint256) {
+    return map.keys.length;
+  }
+
+  function set(Map storage map, string memory key, Tuple.StringUint256 memory val) public {
+    if (map.inserted[key]) {
+      map.values[key] = val;
+    } else {
+      map.inserted[key] = true;
+      map.values[key] = val;
+      map.indexOf[key] = map.keys.length;
+      map.keys.push(key);
+    }
+  }
+}
