@@ -30,6 +30,7 @@ import "test/TestConstants.sol";
 import { IterableTupleMapping } from "./IterableTupleMapping.sol";
 import { TestCaseHitRateLoggerToFile } from "./TestCaseHitRateLoggerToFile.sol";
 import { Tuple } from "./Tuple.sol";
+import { OverWriteFile } from "./OverWriteFile.sol";
 /**
 Stores the counters used to track how often the different branches of the tests are covered.*/
 struct LogParams {
@@ -89,14 +90,18 @@ contract FuzzTestCaseCounter is PRBTest, StdCheats {
     );
     // overwriteFileContent(serialisedTextString, hitRateFilePath);
     _testCaseHitRateLoggerToFile.overwriteFileContent(serialisedTextString, hitRateFilePath);
+    emit Log("Wrote to file!");
     // TODO: assert the log filecontent equals the current _tupleMappingping values.
+
+    
   }
 
   /** Reads the log data (parameter name and value) from the file, converts it
 into a struct, and then converts that struct into this _tupleMappingping.
  */
   function readHitRatesFromLogFileAndSetToMap(string memory hitRateFilePath) public {
-    bytes memory data = _testCaseHitRateLoggerToFile.readLogData(hitRateFilePath);
+    bytes memory data = _testCaseHitRateLoggerToFile.readDataFromFile(hitRateFilePath);
+    emit Log("About to do decode");
     abi.decode(data, (LogParams));
     // Unpack sorted HitRate data from file into HitRatesReturnAll object.
     LogParams memory readLogParams = abi.decode(data, (LogParams));
@@ -152,6 +157,10 @@ into a struct, and then converts that struct into this _tupleMappingping.
     );
 
     return hitRateFilePath;
+  }
+
+  function callIncrementLogCount(string memory variableName) public {
+    _tupleMapping.incrementLogCount(variableName);
   }
 
   // solhint-disable-next-line foundry-test-functions

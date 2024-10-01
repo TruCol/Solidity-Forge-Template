@@ -1,13 +1,16 @@
 pragma solidity >=0.8.25 <0.9.0;
-import { Strings } from '@openzeppelin/contracts/utils/Strings.sol';
-import { PRBTest } from '@prb/test/src/PRBTest.sol';
-import { console2 } from 'forge-std/src/console2.sol';
-import { StdCheats } from 'forge-std/src/StdCheats.sol';
-import { Vm } from 'forge-std/src/Vm.sol';
-import 'test/TestConstants.sol';
-import { Tuple } from './Tuple.sol';
-import { WritingToFile } from './WritingToFile.sol';
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
+import { PRBTest } from "@prb/test/src/PRBTest.sol";
+import { console2 } from "forge-std/src/console2.sol";
+import { StdCheats } from "forge-std/src/StdCheats.sol";
+import { Vm } from "forge-std/src/Vm.sol";
+import "test/TestConstants.sol";
+import { Tuple } from "./Tuple.sol";
+import { WritingToFile } from "./WritingToFile.sol";
+import { OverWriteFile } from "./OverWriteFile.sol";
+
 error InvalidExportLogMapError(string message, string[] keys, Tuple.StringUint256[] values, uint256);
+error UnexpectedNrOfKeys(string message);
 
 contract TestCaseHitRateLoggerToFile is PRBTest, StdCheats {
   /**
@@ -27,65 +30,133 @@ contract TestCaseHitRateLoggerToFile is PRBTest, StdCheats {
         _MAX_NR_OF_TEST_LOG_VALUES_PER_LOG_FILE
       );
     }
-
     string memory obj1 = "ThisValueDissapearsIntoTheVoid";
+    string[_MAX_NR_OF_TEST_LOG_VALUES_PER_LOG_FILE] memory tupleStrings;
+    // TODO: tighten asserts.
     if (keys.length > 1) {
       for (uint256 i = 0; i < keys.length - 1; i++) {
-        string memory tupleString;
-        tupleString = vm.serializeString(obj1, "str", values[i].str);
-        tupleString = vm.serializeUint(obj1, "number", values[i].number);
-        emit Log("AtupleString=");
-        emit Log(tupleString);
+        tupleStrings[i] = string(
+          abi.encodePacked(
+            '{ "hitCount":',
+            Strings.toString(values[i].number),
+            ', "variableName": "',
+            values[i].str,
+            '"}'
+          )
+        );
+        // string memory tupleString;
+        // tupleString = vm.serializeString(obj1, "variableName", values[i].str);
+        // tupleString = vm.serializeUint(obj1, "hitCount", values[i].number);
+        // tupleStrings[i] = tupleString;
+        emit Log("tupleString=");
+        emit Log(tupleStrings[i]);
+        string memory jsonObj = '{ "boolean": true, "number": 342, "myObject": { "title": "finally json serialization" } }';
 
-        // vm.serializeUint(obj1, keys[i], values[i]);
+        // The last instance is different because it needs to be stored into a variable.
+        uint256 lastKeyIndex = keys.length - 1;
+
+        // string memory lastTupleString;
+        // lastTupleString = vm.serializeString(obj1, "variableName", values[lastKeyIndex].str);
+        // lastTupleString = vm.serializeUint(obj1, "hitCount", values[lastKeyIndex].number);
+        // tupleStrings[lastKeyIndex] = lastTupleString;
+        tupleStrings[lastKeyIndex] = string(
+          // No trailing comma for last entry.
+          abi.encodePacked("{'hitCount':", Strings.toString(values[i].number), ",'variableName':'", values[i].str, "'}")
+        );
+        
       }
-    }
-
-    // The last instance is different because it needs to be stored into a variable.
-    if (keys.length > 0) {
-      uint256 lastKeyIndex = keys.length - 1;
-
-      string memory tupleString;
-      tupleString = vm.serializeString(obj1, "str", values[lastKeyIndex].str);
-      tupleString = vm.serializeUint(obj1, "number", values[lastKeyIndex].number);
-      emit Log("BtupleString=");
-      emit Log(tupleString);
       // serialisedTextString = vm.serializeUint(obj1, keys[lastKeyIndex], values[lastKeyIndex]);
     } else {
-      string memory tupleString;
-      tupleString = vm.serializeString(obj1, "str", values[0].str);
-      tupleString = vm.serializeUint(obj1, "number", values[0].number);
-      emit Log("CtupleString=");
-      emit Log(tupleString);
-
-      // serialisedTextString = vm.serializeUint(obj1, "a", values[0]);
-      // serialisedTextString = vm.serializeUint(obj1, "b", values[0]);
-      // serialisedTextString = vm.serializeUint(obj1, "c", values[0]);
-      // serialisedTextString = vm.serializeUint(obj1, "d", values[0]);
-      // serialisedTextString = vm.serializeUint(obj1, "e", values[0]);
-      // serialisedTextString = vm.serializeUint(obj1, "f", values[0]);
-      // serialisedTextString = vm.serializeUint(obj1, "g", values[0]);
-      // serialisedTextString = vm.serializeUint(obj1, "h", values[0]);
-      // serialisedTextString = vm.serializeUint(obj1, "i", values[0]);
-      // serialisedTextString = vm.serializeUint(obj1, "j", values[0]);
-      // serialisedTextString = vm.serializeUint(obj1, "k", values[0]);
-      // serialisedTextString = vm.serializeUint(obj1, "l", values[0]);
-      // serialisedTextString = vm.serializeUint(obj1, "m", values[0]);
-      // serialisedTextString = vm.serializeUint(obj1, "n", values[0]);
-      // serialisedTextString = vm.serializeUint(obj1, "o", values[0]);
-      // serialisedTextString = vm.serializeUint(obj1, "p", values[0]);
-      // serialisedTextString = vm.serializeUint(obj1, "q", values[0]);
-      // serialisedTextString = vm.serializeUint(obj1, "r", values[0]);
-      // serialisedTextString = vm.serializeUint(obj1, "s", values[0]);
-      // serialisedTextString = vm.serializeUint(obj1, "t", values[0]);
-      // serialisedTextString = vm.serializeUint(obj1, "u", values[0]);
-      // serialisedTextString = vm.serializeUint(obj1, "v", values[0]);
-      // serialisedTextString = vm.serializeUint(obj1, "w", values[0]);
-      // serialisedTextString = vm.serializeUint(obj1, "x", values[0]);
-      // serialisedTextString = vm.serializeUint(obj1, "y", values[0]);
-      // serialisedTextString = vm.serializeUint(obj1, "z", values[0]);
+      revert UnexpectedNrOfKeys(
+        string(abi.encodePacked("The number of keys:", Strings.toString(keys.length), " was unexpected"))
+      );
     }
+    // Create final object that is exported to Json.
+    serialisedTextString = string(
+      abi.encodePacked(
+        "{'a':",
+        tupleStrings[0],
+        ",",
+        "'b':",
+        tupleStrings[1],
+        ",",
+        "'c':",
+        tupleStrings[2],
+        ",",
+        "'d':",
+        tupleStrings[3],
+        ",",
+        "'e':",
+        tupleStrings[4],
+        ",",
+        "'f':",
+        tupleStrings[5],
+        ",",
+        "'g':",
+        tupleStrings[6],
+        ",",
+        "'h':",
+        tupleStrings[7],
+        ",",
+        "'i':",
+        tupleStrings[8],
+        ",",
+        "'j':",
+        tupleStrings[9],
+        ",",
+        "'k':",
+        tupleStrings[10],
+        ",",
+        "'l':",
+        tupleStrings[11],
+        ",",
+        "'m':",
+        tupleStrings[12],
+        ",",
+        "'n':",
+        tupleStrings[13],
+        ",",
+        "'o':",
+        tupleStrings[14],
+        ",",
+        "'p':",
+        tupleStrings[15],
+        ",",
+        "'q':",
+        tupleStrings[16],
+        ",",
+        "'r':",
+        tupleStrings[17],
+        ",",
+        "'s':",
+        tupleStrings[18],
+        ",",
+        "'t':",
+        tupleStrings[19],
+        ",",
+        "'u':",
+        tupleStrings[20],
+        ",",
+        "'v':",
+        tupleStrings[21],
+        ",",
+        "'w':",
+        tupleStrings[22],
+        ",",
+        "'x':",
+        tupleStrings[23],
+        ",",
+        "'y':",
+        tupleStrings[24],
+        ",",
+        "'z':",
+        tupleStrings[25],
+        "}"
+      )
+    );
 
+    emit Log("Returning:");
+    emit Log(serialisedTextString);
     return serialisedTextString;
   }
 
@@ -94,11 +165,6 @@ contract TestCaseHitRateLoggerToFile is PRBTest, StdCheats {
     emit Log("fileContent");
     emit Log(fileContent);
     jsonData = vm.parseJson(fileContent);
-
-    string[] memory firstKeys = new string[](jsonData.length);
-    emit Log("firstKeys.length");
-    emit Log(Strings.toString(firstKeys.length));
-
     return jsonData;
   }
 
@@ -129,13 +195,15 @@ Afterwards, it can load that new file.
       testFunctionName,
       serialisedTextString
     );
-    return (hitRateFilePath);
-  }
 
-  // solhint-disable-next-line foundry-test-functions
-  function readLogData(string memory hitRateFilePath) public returns (bytes memory data) {
-    // Read the latest hitRates from file.
-    data = readDataFromFile(hitRateFilePath);
-    return data;
+    // Remove surrounding quotation marks ".
+    string memory fileContents = vm.readFile(hitRateFilePath);
+    // Step 2: Call the replaceString function to modify the content
+    OverWriteFile  overWriteFile = new OverWriteFile();
+    string memory modifiedContents = overWriteFile.replaceString(fileContents, '"', "");
+    // Step 3: Write the modified content back to the file
+    vm.writeFile(hitRateFilePath, modifiedContents);
+
+    return (hitRateFilePath);
   }
 }

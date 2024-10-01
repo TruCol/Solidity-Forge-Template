@@ -41,14 +41,17 @@ contract FuzzTestWithHitRateAssertion is PRBTest, StdCheats {
     to see how often each test case was hit.
    */
   function testFuzzCaseLogging(uint256 randomValue) public virtual {
+    emit Log("FIRST CALL");
     _logMapping.readHitRatesFromLogFileAndSetToMap(_logMapping.getHitRateFilePath());
 
     if (randomValue > 42) {
       _tupleMapping.incrementLogCount("LargerThan");
+      // _logMapping.callIncrementLogCount("LargerThan");
     } else {
       _tupleMapping.incrementLogCount("SmallerThan");
     }
     _tupleMapping.incrementLogCount("Total");
+
     _logMapping.overwriteExistingMapLogFile(_logMapping.getHitRateFilePath());
   }
 }
