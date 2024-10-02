@@ -6,6 +6,7 @@ import "test/TestConstants.sol";
 import { Tuple } from "./Tuple.sol";
 
 error VariableNotFoundError(string message, string variableName);
+error DidNotFindEmptyLogEntry(string message, string variableName);
 
 library IterableTupleMapping {
   struct ValueEntryTuple {
@@ -99,24 +100,39 @@ library IterableTupleMapping {
   /** Increments the test case hit counts in the testIterableMapping. */
   function incrementLogCount(Map storage map, string memory variableName) public {
     if (variableIsStored(map, variableName)) {
-      
-      
-
       uint256 currentCount = getCurrentCount(map, variableName);
 
       incrementCount(map, variableName, 1);
       // uint256 variableLetterKey = getCurrentVariableLetter(variableName);
     } else {
-      
-      
       // Store the variable name and 0 value at the next index/letterkey.
       Tuple.StringUint256 memory newValue = Tuple.StringUint256(variableName, 1);
-      set(map, variableName, newValue);
+      // set(map, variableName, newValue);
 
       // TODO: find out the first empty place, and put it there.
+      bool foundEmptyEntry = false;
+      console2.log("setting for variableName=");
+      console2.log(variableName);
       for (uint256 i = 0; i < map.keys.length; i++) {
-        
-        
+        console2.log("get(map, map.keys[i]).str=");
+        console2.log(get(map, map.keys[i]).str);
+        // if (
+        //   keccak256(abi.encodePacked(get(map, map.keys[i]).str)) ==
+        //   keccak256(abi.encodePacked(_INITIAL_VARIABLE_PLACEHOLDER))
+        // ) {
+
+          if (
+            keccak256(abi.encodePacked(get(map, map.keys[i]).str)) == keccak256(abi.encodePacked(_INITIAL_VARIABLE_PLACEHOLDER)) ||
+            keccak256(abi.encodePacked(get(map, map.keys[i]).str)) == keccak256(abi.encodePacked(""))
+          ) {
+          set(map, map.keys[i], newValue);
+          foundEmptyEntry = true;
+          break;
+        }
+      }
+
+      if (!foundEmptyEntry) {
+        revert DidNotFindEmptyLogEntry("Error, did not find empty log entry for variable:", variableName);
       }
     }
   }
