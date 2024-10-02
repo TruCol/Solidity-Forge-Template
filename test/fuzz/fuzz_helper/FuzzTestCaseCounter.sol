@@ -26,11 +26,10 @@ import { console2 } from "forge-std/src/console2.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
 import "forge-std/src/Vm.sol";
 import "test/TestConstants.sol";
-
 import { IterableTupleMapping } from "./IterableTupleMapping.sol";
+import { OverWriteFile } from "./OverWriteFile.sol";
 import { TestCaseHitRateLoggerToFile } from "./TestCaseHitRateLoggerToFile.sol";
 import { Tuple } from "./Tuple.sol";
-import { OverWriteFile } from "./OverWriteFile.sol";
 /**
 Stores the counters used to track how often the different branches of the tests are covered.*/
 struct LogParams {
@@ -92,8 +91,6 @@ contract FuzzTestCaseCounter is PRBTest, StdCheats {
     _testCaseHitRateLoggerToFile.overwriteFileContent(serialisedTextString, hitRateFilePath);
     emit Log("Wrote to file!");
     // TODO: assert the log filecontent equals the current _tupleMappingping values.
-
-    
   }
 
   /** Reads the log data (parameter name and value) from the file, converts it

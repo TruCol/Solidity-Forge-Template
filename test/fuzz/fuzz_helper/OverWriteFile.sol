@@ -1,5 +1,6 @@
 pragma solidity >=0.8.25 <0.9.0;
 
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { PRBTest } from "@prb/test/src/PRBTest.sol";
 import { console2 } from "forge-std/src/console2.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
@@ -11,12 +12,15 @@ contract OverWriteFile is PRBTest, StdCheats {
     string memory original,
     string memory search,
     string memory replacement
-  ) public pure returns (string memory) {
+  ) public returns (string memory) {
     bytes memory originalBytes = bytes(original);
+
     bytes memory searchBytes = bytes(search);
+
     bytes memory replacementBytes = bytes(replacement);
 
     uint256 counterLimit = originalBytes.length - searchBytes.length;
+
     // Count occurrences of the search string
     uint256 occurrences = 0;
     for (uint256 i = 0; i <= counterLimit; i++) {
@@ -28,16 +32,32 @@ contract OverWriteFile is PRBTest, StdCheats {
           break;
         }
       }
+
       if (isMatch) {
         occurrences++;
+
         i += searchBytes.length - 1;
       }
     }
-
+    emit Log("originalBytes.length");
+    emit Log(Strings.toString(originalBytes.length));
+    emit Log("replacementBytes.length");
+    emit Log(Strings.toString(replacementBytes.length));
+    emit Log("searchBytes.length");
+    emit Log(Strings.toString(searchBytes.length));
+    emit Log("occurrences");
+    emit Log(Strings.toString(occurrences));
     // Create a new bytes array to store the modified string
-    bytes memory result = new bytes(
-      originalBytes.length + (replacementBytes.length - searchBytes.length) * occurrences
-    );
+
+    bytes memory result;
+    if (replacementBytes.length > searchBytes.length) {
+      result = new bytes(originalBytes.length + (replacementBytes.length - searchBytes.length) * occurrences);
+    } else if (replacementBytes.length < searchBytes.length) {
+      result = new bytes(originalBytes.length - (searchBytes.length - replacementBytes.length) * occurrences);
+    } else {
+      result = new bytes(originalBytes.length);
+    }
+
     uint256 k = 0;
     for (uint256 i = 0; i < originalBytes.length; ) {
       bool isMatch = true;
@@ -47,17 +67,18 @@ contract OverWriteFile is PRBTest, StdCheats {
           break;
         }
       }
+      emit Log("AAAB6");
 
       if (isMatch) {
         for (uint256 j = 0; j < replacementBytes.length; j++) {
           result[k++] = replacementBytes[j];
         }
+
         i += searchBytes.length;
       } else {
         result[k++] = originalBytes[i++];
       }
     }
-
     return string(result);
   }
 

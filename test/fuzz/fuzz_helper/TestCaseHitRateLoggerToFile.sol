@@ -5,9 +5,9 @@ import { console2 } from "forge-std/src/console2.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
 import { Vm } from "forge-std/src/Vm.sol";
 import "test/TestConstants.sol";
+import { OverWriteFile } from "./OverWriteFile.sol";
 import { Tuple } from "./Tuple.sol";
 import { WritingToFile } from "./WritingToFile.sol";
-import { OverWriteFile } from "./OverWriteFile.sol";
 
 error InvalidExportLogMapError(string message, string[] keys, Tuple.StringUint256[] values, uint256);
 error UnexpectedNrOfKeys(string message);
@@ -37,11 +37,11 @@ contract TestCaseHitRateLoggerToFile is PRBTest, StdCheats {
       for (uint256 i = 0; i < keys.length - 1; i++) {
         tupleStrings[i] = string(
           abi.encodePacked(
-            '{ "hitCount":',
+            "{ 'hitCount':",
             Strings.toString(values[i].number),
-            ', "variableName": "',
+            ", 'variableName': '",
             values[i].str,
-            '"}'
+            "'}"
           )
         );
         // string memory tupleString;
@@ -50,7 +50,8 @@ contract TestCaseHitRateLoggerToFile is PRBTest, StdCheats {
         // tupleStrings[i] = tupleString;
         emit Log("tupleString=");
         emit Log(tupleStrings[i]);
-        string memory jsonObj = '{ "boolean": true, "number": 342, "myObject": { "title": "finally json serialization" } }';
+        string
+          memory jsonObj = "{ 'boolean': true, 'number': 342, 'myObject': { 'title': 'finally json serialization' } }";
 
         // The last instance is different because it needs to be stored into a variable.
         uint256 lastKeyIndex = keys.length - 1;
@@ -63,7 +64,6 @@ contract TestCaseHitRateLoggerToFile is PRBTest, StdCheats {
           // No trailing comma for last entry.
           abi.encodePacked("{'hitCount':", Strings.toString(values[i].number), ",'variableName':'", values[i].str, "'}")
         );
-        
       }
       // serialisedTextString = vm.serializeUint(obj1, keys[lastKeyIndex], values[lastKeyIndex]);
     } else {
@@ -199,8 +199,8 @@ Afterwards, it can load that new file.
     // Remove surrounding quotation marks ".
     string memory fileContents = vm.readFile(hitRateFilePath);
     // Step 2: Call the replaceString function to modify the content
-    OverWriteFile  overWriteFile = new OverWriteFile();
-    string memory modifiedContents = overWriteFile.replaceString(fileContents, '"', "");
+    OverWriteFile overWriteFile = new OverWriteFile();
+    string memory modifiedContents = overWriteFile.replaceString(fileContents, "'", "");
     // Step 3: Write the modified content back to the file
     vm.writeFile(hitRateFilePath, modifiedContents);
 
