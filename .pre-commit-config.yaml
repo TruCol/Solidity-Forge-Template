@@ -218,19 +218,19 @@ repos:
            ".solhint-src.json"
          ]
 
-    #  - id: solhint on tests
-    #    name: SolHint Linter on test files
-    #    entry: solhint
-    #    language: node
-    #    verbose: true
-    #    files: ^(test/)
-    #    args:
-    #      [
-    #        "--fix", # Automatically fix those issues that can be auto-fixed.
-    #        "--noPrompt", # Do not ask for backup before fix.
-    #        "--config",
-    #        ".solhint-test.json"
-    #      ]
+     - id: solhint on tests
+       name: SolHint Linter on test files
+       entry: solhint
+       language: node
+       verbose: true
+       files: ^(test/)
+       args:
+         [
+           "--fix", # Automatically fix those issues that can be auto-fixed.
+           "--noPrompt", # Do not ask for backup before fix.
+           "--config",
+           ".solhint-test.json"
+         ]
 
      # Static code analyzer for solidity.
      - id: Slither on src

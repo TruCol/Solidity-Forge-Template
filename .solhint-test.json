@@ -18,6 +18,9 @@
     ],
     "not-rely-on-time": [
       "off"
+    ],
+    "quotes": [
+      "off"
     ]
   }
 }
