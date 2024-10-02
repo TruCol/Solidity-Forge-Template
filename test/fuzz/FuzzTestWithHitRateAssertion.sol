@@ -45,12 +45,14 @@ contract FuzzTestWithHitRateAssertion is PRBTest, StdCheats {
     _logMapping.readHitRatesFromLogFileAndSetToMap(_logMapping.getHitRateFilePath());
 
     if (randomValue > 42) {
-      _tupleMapping.incrementLogCount("LargerThan");
-      // _logMapping.callIncrementLogCount("LargerThan");
+      // _tupleMapping.incrementLogCount("LargerThan");
+      _logMapping.callIncrementLogCount("LargerThan");
     } else {
-      _tupleMapping.incrementLogCount("SmallerThan");
+      // _tupleMapping.incrementLogCount("SmallerThan");
+      _logMapping.callIncrementLogCount("SmallerThan");
     }
-    _tupleMapping.incrementLogCount("Total");
+    // _tupleMapping.incrementLogCount("Total");
+    _logMapping.callIncrementLogCount("Total");
 
     _logMapping.overwriteExistingMapLogFile(_logMapping.getHitRateFilePath());
   }

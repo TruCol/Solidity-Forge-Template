@@ -18,7 +18,6 @@ contract TestCaseHitRateLoggerToFile is PRBTest, StdCheats {
      */
   // solhint-disable-next-line foundry-test-functions
   function convertHitRatesToString(
-    // mapping(bytes32 => uint256) loggingMap
     string[] memory keys,
     Tuple.StringUint256[] memory values
   ) public returns (string memory serialisedTextString) {
@@ -45,10 +44,6 @@ contract TestCaseHitRateLoggerToFile is PRBTest, StdCheats {
           )
         );
 
-        // Remove escape characters when writing to file
-        // bytes memory tupleStrings[i] = bytes(jsonString);
-        // string memory cleanJsonString = string(cleanJsonBytes);
-
         emit Log("tupleString=");
         emit Log(tupleStrings[i]);
         string
@@ -57,10 +52,6 @@ contract TestCaseHitRateLoggerToFile is PRBTest, StdCheats {
         // The last instance is different because it needs to be stored into a variable.
         uint256 lastKeyIndex = keys.length - 1;
 
-        // string memory lastTupleString;
-        // lastTupleString = vm.serializeString(obj1, "variableName", values[lastKeyIndex].str);
-        // lastTupleString = vm.serializeUint(obj1, "hitCount", values[lastKeyIndex].number);
-        // tupleStrings[lastKeyIndex] = lastTupleString;
         tupleStrings[lastKeyIndex] = string(
           // No trailing comma for last entry.
           abi.encodePacked(
@@ -158,16 +149,11 @@ contract TestCaseHitRateLoggerToFile is PRBTest, StdCheats {
         "}"
       )
     );
-
-    emit Log("Returning:");
-    emit Log(serialisedTextString);
     return serialisedTextString;
   }
 
   function readDataFromFile(string memory path) public returns (bytes memory jsonData) {
     string memory fileContent = vm.readFile(path);
-    emit Log("fileContent");
-    emit Log(fileContent);
     jsonData = vm.parseJson(fileContent);
     return jsonData;
   }
@@ -199,23 +185,6 @@ Afterwards, it can load that new file.
       testFunctionName,
       serialisedTextString
     );
-
-    // Remove surrounding quotation marks ".
-    // string memory fileContents = vm.readFile(hitRateFilePath);
-    
-    // OverWriteFile overWriteFile = new OverWriteFile();
-    // string memory modifiedContents = overWriteFile.replaceString(fileContents, "'", '"');
-    // modifiedContents = overWriteFile.removeFirstAndLastChar(modifiedContents);
-    // // string memory modifiedContents = overWriteFile.replaceString(fileContents, "\"", "");
-    // vm.writeFile(hitRateFilePath, modifiedContents);
-    // emit Log("modifiedContents=");
-    // emit Log(modifiedContents);
-    
-    // fileContents = vm.readFile(hitRateFilePath);
-    // modifiedContents = overWriteFile.replaceString(fileContents, "\'", '"');
-    // emit Log("modifiedContentsAgain=");
-    // emit Log(modifiedContents);
-    // vm.writeFile(hitRateFilePath, modifiedContents);
 
     return (hitRateFilePath);
   }

@@ -141,7 +141,10 @@ into a struct, and then converts that struct into this _tupleMappingping.
       y: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 0),
       z: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 0)
     });
-
+      emit Log("AFTER INITIALISATION Setting a with number:");
+      emit Log(Strings.toString(_logParams.a.number));
+      emit Log("Setting a with str:");
+      emit Log(_logParams.a.str);
     updateLogParamMapping(_logParams);
 
     // This should just be to get the hitRateFilePath because the data should
@@ -165,6 +168,10 @@ into a struct, and then converts that struct into this _tupleMappingping.
     // TODO: update the keys to represent the actual keys in the logParams object.
     for (uint256 i = 0; i < _MAX_NR_OF_TEST_LOG_VALUES_PER_LOG_FILE; i++) {
       if (i == 0) {
+        emit Log("Setting a with number:");
+        emit Log(Strings.toString(logParams.a.number));
+        emit Log("Setting a with str:");
+        emit Log(logParams.a.str);
         _tupleMapping.set("a", logParams.a);
       } else if (i == 1) {
         _tupleMapping.set("b", logParams.b);
