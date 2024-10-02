@@ -99,7 +99,7 @@ library IterableTupleMapping {
   /** Increments the test case hit counts in the testIterableMapping. */
   function incrementLogCount(Map storage map, string memory variableName) public {
     if (variableIsStored(map, variableName)) {
-      console2.log("Variable is stored:" );
+      console2.log("Variable is stored:");
       console2.log(variableName);
 
       uint256 currentCount = getCurrentCount(map, variableName);
@@ -107,7 +107,7 @@ library IterableTupleMapping {
       incrementCount(map, variableName, 1);
       // uint256 variableLetterKey = getCurrentVariableLetter(variableName);
     } else {
-      console2.log("Variable is not yet stored:" );
+      console2.log("Variable is not yet stored:");
       console2.log(variableName);
       // Store the variable name and 0 value at the next index/letterkey.
       Tuple.StringUint256 memory newValue = Tuple.StringUint256(variableName, 1);
@@ -115,7 +115,7 @@ library IterableTupleMapping {
 
       // TODO: find out the first empty place, and put it there.
       for (uint256 i = 0; i < map.keys.length; i++) {
-        console2.log("key=:" );
+        console2.log("key=:");
         console2.log(map.keys[i]);
       }
     }

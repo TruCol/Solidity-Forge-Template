@@ -100,13 +100,12 @@ contract OverWriteFile is PRBTest, StdCheats {
   function removeFirstAndLastChar(string memory str) public pure returns (string memory) {
     bytes memory strBytes = bytes(str);
     if (strBytes.length <= 2) {
-        return ""; // Return empty string if length is less than or equal to 2
+      return ""; // Return empty string if length is less than or equal to 2
     }
     bytes memory result = new bytes(strBytes.length - 2);
     for (uint i = 1; i < strBytes.length - 1; i++) {
-        result[i - 1] = strBytes[i];
+      result[i - 1] = strBytes[i];
     }
     return string(result);
-}
-
+  }
 }

@@ -54,11 +54,8 @@ contract TestCaseHitRateLoggerToFile is PRBTest, StdCheats {
 
         tupleStrings[lastKeyIndex] = string(
           // No trailing comma for last entry.
-          abi.encodePacked(
-            '{"hitCount":', 
-            Strings.toString(values[i].number), ',"variableName":"', values[i].str, '"}')
+          abi.encodePacked('{"hitCount":', Strings.toString(values[i].number), ',"variableName":"', values[i].str, '"}')
         );
-        
       }
       // serialisedTextString = vm.serializeUint(obj1, keys[lastKeyIndex], values[lastKeyIndex]);
     } else {

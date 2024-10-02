@@ -141,10 +141,10 @@ into a struct, and then converts that struct into this _tupleMappingping.
       y: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 0),
       z: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 0)
     });
-      emit Log("AFTER INITIALISATION Setting a with number:");
-      emit Log(Strings.toString(_logParams.a.number));
-      emit Log("Setting a with str:");
-      emit Log(_logParams.a.str);
+    emit Log("AFTER INITIALISATION Setting a with number:");
+    emit Log(Strings.toString(_logParams.a.number));
+    emit Log("Setting a with str:");
+    emit Log(_logParams.a.str);
     updateLogParamMapping(_logParams);
 
     // This should just be to get the hitRateFilePath because the data should
