@@ -37,17 +37,18 @@ contract TestCaseHitRateLoggerToFile is PRBTest, StdCheats {
       for (uint256 i = 0; i < keys.length - 1; i++) {
         tupleStrings[i] = string(
           abi.encodePacked(
-            "{ 'hitCount':",
+            '{ "hitCount":',
             Strings.toString(values[i].number),
-            ", 'variableName': '",
+            ', "variableName": "',
             values[i].str,
-            "'}"
+            '"}'
           )
         );
-        // string memory tupleString;
-        // tupleString = vm.serializeString(obj1, "variableName", values[i].str);
-        // tupleString = vm.serializeUint(obj1, "hitCount", values[i].number);
-        // tupleStrings[i] = tupleString;
+
+        // Remove escape characters when writing to file
+        // bytes memory tupleStrings[i] = bytes(jsonString);
+        // string memory cleanJsonString = string(cleanJsonBytes);
+
         emit Log("tupleString=");
         emit Log(tupleStrings[i]);
         string
@@ -62,8 +63,11 @@ contract TestCaseHitRateLoggerToFile is PRBTest, StdCheats {
         // tupleStrings[lastKeyIndex] = lastTupleString;
         tupleStrings[lastKeyIndex] = string(
           // No trailing comma for last entry.
-          abi.encodePacked("{'hitCount':", Strings.toString(values[i].number), ",'variableName':'", values[i].str, "'}")
+          abi.encodePacked(
+            '{"hitCount":', 
+            Strings.toString(values[i].number), ',"variableName":"', values[i].str, '"}')
         );
+        
       }
       // serialisedTextString = vm.serializeUint(obj1, keys[lastKeyIndex], values[lastKeyIndex]);
     } else {
@@ -74,82 +78,82 @@ contract TestCaseHitRateLoggerToFile is PRBTest, StdCheats {
     // Create final object that is exported to Json.
     serialisedTextString = string(
       abi.encodePacked(
-        "{'a':",
+        '{"a":',
         tupleStrings[0],
         ",",
-        "'b':",
+        '"b":',
         tupleStrings[1],
         ",",
-        "'c':",
+        '"c":',
         tupleStrings[2],
         ",",
-        "'d':",
+        '"d":',
         tupleStrings[3],
         ",",
-        "'e':",
+        '"e":',
         tupleStrings[4],
         ",",
-        "'f':",
+        '"f":',
         tupleStrings[5],
         ",",
-        "'g':",
+        '"g":',
         tupleStrings[6],
         ",",
-        "'h':",
+        '"h":',
         tupleStrings[7],
         ",",
-        "'i':",
+        '"i":',
         tupleStrings[8],
         ",",
-        "'j':",
+        '"j":',
         tupleStrings[9],
         ",",
-        "'k':",
+        '"k":',
         tupleStrings[10],
         ",",
-        "'l':",
+        '"l":',
         tupleStrings[11],
         ",",
-        "'m':",
+        '"m":',
         tupleStrings[12],
         ",",
-        "'n':",
+        '"n":',
         tupleStrings[13],
         ",",
-        "'o':",
+        '"o":',
         tupleStrings[14],
         ",",
-        "'p':",
+        '"p":',
         tupleStrings[15],
         ",",
-        "'q':",
+        '"q":',
         tupleStrings[16],
         ",",
-        "'r':",
+        '"r":',
         tupleStrings[17],
         ",",
-        "'s':",
+        '"s":',
         tupleStrings[18],
         ",",
-        "'t':",
+        '"t":',
         tupleStrings[19],
         ",",
-        "'u':",
+        '"u":',
         tupleStrings[20],
         ",",
-        "'v':",
+        '"v":',
         tupleStrings[21],
         ",",
-        "'w':",
+        '"w":',
         tupleStrings[22],
         ",",
-        "'x':",
+        '"x":',
         tupleStrings[23],
         ",",
-        "'y':",
+        '"y":',
         tupleStrings[24],
         ",",
-        "'z':",
+        '"z":',
         tupleStrings[25],
         "}"
       )
@@ -197,12 +201,21 @@ Afterwards, it can load that new file.
     );
 
     // Remove surrounding quotation marks ".
-    string memory fileContents = vm.readFile(hitRateFilePath);
-    // Step 2: Call the replaceString function to modify the content
-    OverWriteFile overWriteFile = new OverWriteFile();
-    string memory modifiedContents = overWriteFile.replaceString(fileContents, "'", "");
-    // Step 3: Write the modified content back to the file
-    vm.writeFile(hitRateFilePath, modifiedContents);
+    // string memory fileContents = vm.readFile(hitRateFilePath);
+    
+    // OverWriteFile overWriteFile = new OverWriteFile();
+    // string memory modifiedContents = overWriteFile.replaceString(fileContents, "'", '"');
+    // modifiedContents = overWriteFile.removeFirstAndLastChar(modifiedContents);
+    // // string memory modifiedContents = overWriteFile.replaceString(fileContents, "\"", "");
+    // vm.writeFile(hitRateFilePath, modifiedContents);
+    // emit Log("modifiedContents=");
+    // emit Log(modifiedContents);
+    
+    // fileContents = vm.readFile(hitRateFilePath);
+    // modifiedContents = overWriteFile.replaceString(fileContents, "\'", '"');
+    // emit Log("modifiedContentsAgain=");
+    // emit Log(modifiedContents);
+    // vm.writeFile(hitRateFilePath, modifiedContents);
 
     return (hitRateFilePath);
   }
