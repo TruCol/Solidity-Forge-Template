@@ -35,13 +35,7 @@ contract TestCaseHitRateLoggerToFile is PRBTest, StdCheats {
     if (keys.length > 1) {
       for (uint256 i = 0; i < keys.length - 1; i++) {
         tupleStrings[i] = string(
-          abi.encodePacked(
-            '{ "hitCount":',
-            Strings.toString(values[i].number),
-            ', "variableName": "',
-            values[i].str,
-            '"}'
-          )
+          abi.encodePacked('{ "number":', Strings.toString(values[i].number), ', "str": "', values[i].str, '"}')
         );
 
         emit Log("tupleString=");
@@ -54,7 +48,7 @@ contract TestCaseHitRateLoggerToFile is PRBTest, StdCheats {
 
         tupleStrings[lastKeyIndex] = string(
           // No trailing comma for last entry.
-          abi.encodePacked('{"hitCount":', Strings.toString(values[i].number), ',"variableName":"', values[i].str, '"}')
+          abi.encodePacked('{"number":', Strings.toString(values[i].number), ',"str":"', values[i].str, '"}')
         );
       }
       // serialisedTextString = vm.serializeUint(obj1, keys[lastKeyIndex], values[lastKeyIndex]);

@@ -99,7 +99,7 @@ into a struct, and then converts that struct into this _tupleMappingping.
   function readHitRatesFromLogFileAndSetToMap(string memory hitRateFilePath) public {
     bytes memory data = _testCaseHitRateLoggerToFile.readDataFromFile(hitRateFilePath);
     emit Log("About to do decode");
-    abi.decode(data, (LogParams));
+    // abi.decode(data, (LogParams));
     // Unpack sorted HitRate data from file into HitRatesReturnAll object.
     LogParams memory readLogParams = abi.decode(data, (LogParams));
     // Update the hit rate _tupleMappingping using the HitRatesReturnAll object.
@@ -114,32 +114,32 @@ into a struct, and then converts that struct into this _tupleMappingping.
     string memory testFunctionName
   ) public returns (string memory hitRateFilePath) {
     _logParams = LogParams({
-      a: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 0),
-      b: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 0),
-      c: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 0),
-      d: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 0),
-      e: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 0),
-      f: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 0),
-      g: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 0),
-      h: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 0),
-      i: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 0),
-      j: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 0),
-      k: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 0),
-      l: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 0),
-      m: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 0),
-      n: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 0),
-      o: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 0),
-      p: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 0),
-      q: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 0),
-      r: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 0),
-      s: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 0),
-      t: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 0),
-      u: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 0),
-      v: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 0),
-      w: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 0),
-      x: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 0),
-      y: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 0),
-      z: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 0)
+      a: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
+      b: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
+      c: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 2),
+      d: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 3),
+      e: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
+      f: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
+      g: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
+      h: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
+      i: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
+      j: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
+      k: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
+      l: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
+      m: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
+      n: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
+      o: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
+      p: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
+      q: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
+      r: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
+      s: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
+      t: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
+      u: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
+      v: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
+      w: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
+      x: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
+      y: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
+      z: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4)
     });
     emit Log("AFTER INITIALISATION Setting a with number:");
     emit Log(Strings.toString(_logParams.a.number));

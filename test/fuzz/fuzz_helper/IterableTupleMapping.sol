@@ -60,6 +60,22 @@ library IterableTupleMapping {
     }
   }
 
+  function setDuplicateFunction(Map storage map, string memory key, Tuple.StringUint256 memory val) public {
+    if (map.inserted[key]) {
+      console2.log("The key is already inserted.");
+      console2.log("val.str=.");
+      console2.log(val.str);
+      console2.log(Strings.toString(val.number));
+      // map.values[key] = val;
+    } else {
+      console2.log("The key is not yet inserted.");
+      // map.inserted[key] = true;
+      // map.values[key] = val;
+      // map.indexOf[key] = map.keys.length;
+      // map.keys.push(key);
+    }
+  }
+
   function getCurrentCount(Map storage map, string memory variableName) public returns (uint256 currentCount) {
     // Loop values.
     // If a value tuple string equals variableName, get the uint256 of that tuple and return it.
@@ -100,13 +116,16 @@ library IterableTupleMapping {
   /** Increments the test case hit counts in the testIterableMapping. */
   function incrementLogCount(Map storage map, string memory variableName) public {
     if (variableIsStored(map, variableName)) {
+      console2.log("IS SET: variableName");
+      console2.log(variableName);
       uint256 currentCount = getCurrentCount(map, variableName);
 
       incrementCount(map, variableName, 1);
       // uint256 variableLetterKey = getCurrentVariableLetter(variableName);
     } else {
+      uint256 newCount = 1;
       // Store the variable name and 0 value at the next index/letterkey.
-      Tuple.StringUint256 memory newValue = Tuple.StringUint256(variableName, 1);
+      Tuple.StringUint256 memory newValue = Tuple.StringUint256(variableName, newCount);
       // set(map, variableName, newValue);
 
       // TODO: find out the first empty place, and put it there.
@@ -116,16 +135,14 @@ library IterableTupleMapping {
       for (uint256 i = 0; i < map.keys.length; i++) {
         console2.log("get(map, map.keys[i]).str=");
         console2.log(get(map, map.keys[i]).str);
-        // if (
-        //   keccak256(abi.encodePacked(get(map, map.keys[i]).str)) ==
-        //   keccak256(abi.encodePacked(_INITIAL_VARIABLE_PLACEHOLDER))
-        // ) {
-
-          if (
-            keccak256(abi.encodePacked(get(map, map.keys[i]).str)) == keccak256(abi.encodePacked(_INITIAL_VARIABLE_PLACEHOLDER)) ||
-            keccak256(abi.encodePacked(get(map, map.keys[i]).str)) == keccak256(abi.encodePacked(""))
-          ) {
-          set(map, map.keys[i], newValue);
+        if (
+          keccak256(abi.encodePacked(get(map, map.keys[i]).str)) ==
+          keccak256(abi.encodePacked(_INITIAL_VARIABLE_PLACEHOLDER)) ||
+          keccak256(abi.encodePacked(get(map, map.keys[i]).str)) == keccak256(abi.encodePacked(""))
+        ) {
+          console2.log("Setting for key=");
+          console2.log(map.keys[i]);
+          setDuplicateFunction(map, map.keys[i], newValue);
           foundEmptyEntry = true;
           break;
         }
