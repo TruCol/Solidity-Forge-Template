@@ -45,14 +45,10 @@ contract SimpleExport is PRBTest, StdCheats {
   }
 
   function _retryDecode(bytes memory readData) private returns (ExampleStruct memory readLogParams) {
-    emit Log("readData=");
-    emit Log(string(readData));
     // Convert bytes to string using proper conversion
     string memory jsonString = _bytesToString(readData);
     emit Log("jsonString=");
     emit Log(jsonString);
-
-    _cleanBytesToString(readData);
     // Parse the JSON fields
     bytes memory jsonABytes = vm.parseJson(jsonString, ".a");
     bytes memory jsonBBytes = vm.parseJson(jsonString, ".b");
@@ -84,24 +80,6 @@ contract SimpleExport is PRBTest, StdCheats {
     );
 
     return readLogParams;
-  }
-
-  function _cleanBytesToString(bytes memory data) private returns (string memory) {
-    // Find the length of the actual string (before any null bytes)
-    uint256 i = 0;
-    while (i < data.length && data[i] != 0) {
-      i++;
-    }
-    emit Log("i=");
-    emit Log(Strings.toString(i));
-    // Convert only the valid part of the byte array to string
-    bytes memory cleanData = new bytes(i);
-    for (uint256 j = 0; j < i; j++) {
-      cleanData[j] = data[j];
-    }
-    emit Log("Returning string(cleanData)");
-    emit Log(string(cleanData));
-    return string(cleanData);
   }
 
   function _bytesToString(bytes memory data) private pure returns (string memory) {
@@ -160,7 +138,7 @@ contract SimpleExport is PRBTest, StdCheats {
     return serialised;
   }
 
-  function testFuzzFunction(uint256 randomValue) public virtual {
+  function oldDestFuzzFunction(uint256 randomValue) public virtual {
     emit Log("FIRST CALL");
   }
 }
