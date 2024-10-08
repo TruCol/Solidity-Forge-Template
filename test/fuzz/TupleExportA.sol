@@ -9,13 +9,13 @@ import "test/TestConstants.sol";
 import { TestCaseHitRateLoggerToFile } from "./fuzz_helper/TestCaseHitRateLoggerToFile.sol";
 import { Tuple } from "./fuzz_helper/Tuple.sol"; // Correct import for stdJson
 
-contract TupleExport is PRBTest, StdCheats {
+contract TupleExportA is PRBTest, StdCheats {
   using stdJson for string;
 
   Tuple.StringUint256 public data;
   string public filePath = "./tuple_data.json";
 
-  function testStoreAndLoadTuple() public {
+  function testStoreAndLoadTupleA() public {
     // Arrange
     string memory testStr = "Hello, Forge!";
     uint256 testNum = 12345;
@@ -27,7 +27,7 @@ contract TupleExport is PRBTest, StdCheats {
     data = Tuple.StringUint256({ str: "", number: 0 });
 
     // Act: Load the tuple back
-    _loadTuple(filePath);
+    // _loadTuple(filePath);
 
     // Assert
     assertEq(data.str, testStr);
@@ -37,7 +37,9 @@ contract TupleExport is PRBTest, StdCheats {
   function _storeTuple(string memory _str, uint256 _num, string memory _filePath) internal {
     Tuple.StringUint256 memory tuple = Tuple.StringUint256({ str: _str, number: _num });
 
-    string memory jsonData = vm.serializeString(vm.serializeUint("", "number", tuple.number), "str", tuple.str);
+    // Serialize both string and number into one JSON object
+    string memory jsonData = vm.serializeUint("", "number", tuple.number);
+    jsonData = vm.serializeString(jsonData, "str", tuple.str);
 
     vm.writeFile(_filePath, jsonData);
   }
@@ -45,5 +47,6 @@ contract TupleExport is PRBTest, StdCheats {
   function _loadTuple(string memory _filePath) internal {
     string memory jsonData = vm.readFile(_filePath);
     data.number = jsonData.readUint("number");
+    data.str = jsonData.readString("str");
   }
 }

@@ -62,13 +62,8 @@ library IterableTupleMapping {
 
   function setDuplicateFunction(Map storage map, string memory key, Tuple.StringUint256 memory val) public {
     if (map.inserted[key]) {
-      console2.log("The key is already inserted.");
-      console2.log("val.str=.");
-      console2.log(val.str);
-      console2.log(Strings.toString(val.number));
       // map.values[key] = val;
     } else {
-      console2.log("The key is not yet inserted.");
       // map.inserted[key] = true;
       // map.values[key] = val;
       // map.indexOf[key] = map.keys.length;
@@ -116,8 +111,6 @@ library IterableTupleMapping {
   /** Increments the test case hit counts in the testIterableMapping. */
   function incrementLogCount(Map storage map, string memory variableName) public {
     if (variableIsStored(map, variableName)) {
-      console2.log("IS SET: variableName");
-      console2.log(variableName);
       uint256 currentCount = getCurrentCount(map, variableName);
 
       incrementCount(map, variableName, 1);
@@ -130,18 +123,13 @@ library IterableTupleMapping {
 
       // TODO: find out the first empty place, and put it there.
       bool foundEmptyEntry = false;
-      console2.log("setting for variableName=");
-      console2.log(variableName);
+
       for (uint256 i = 0; i < map.keys.length; i++) {
-        console2.log("get(map, map.keys[i]).str=");
-        console2.log(get(map, map.keys[i]).str);
         if (
           keccak256(abi.encodePacked(get(map, map.keys[i]).str)) ==
           keccak256(abi.encodePacked(_INITIAL_VARIABLE_PLACEHOLDER)) ||
           keccak256(abi.encodePacked(get(map, map.keys[i]).str)) == keccak256(abi.encodePacked(""))
         ) {
-          console2.log("Setting for key=");
-          console2.log(map.keys[i]);
           setDuplicateFunction(map, map.keys[i], newValue);
           foundEmptyEntry = true;
           break;
