@@ -63,25 +63,24 @@ contract TupleExportC is PRBTest, StdCheats {
   function _exportParametersToFile(string memory _filePath) internal {
     string memory obj = "parameters";
 
-    // Serialize the name field of the Parameters struct
+    // Create an empty array to hold the tuple entries
     string memory output = vm.serializeString(obj, "name", parameters.name);
-    emit Log("AAA");
-    // Loop through the tupples array and serialize each element
+    
     for (uint256 i = 0; i < parameters.tupples.length; i++) {
-      emit Log(Strings.toString(i));
-      string memory tupleKey = string(abi.encodePacked("tupple_", Strings.toString(i)));
-      emit Log("Converted");
-      output = vm.serializeUint(tupleKey, "some_number", parameters.tupples[i].some_number);
-      output = vm.serializeString(tupleKey, "string_title", parameters.tupples[i].string_title);
+        // Create a unique key for each tuple entry
+        string memory tupleObj = string(abi.encodePacked("tupple_", Strings.toString(i)));
 
-      // Merge the serialized tuple with the main object
-      output = vm.serializeString(obj, tupleKey, tupleKey); // Placeholder, handles struct key mapping
+        // Serialize the fields of the tuple into a temporary object
+        output = vm.serializeUint(tupleObj, "some_number", parameters.tupples[i].some_number);
+        output = vm.serializeString(tupleObj, "string_title", parameters.tupples[i].string_title);
+
+        // Merge the serialized tuple into the main array under "parameters"
+        output = vm.serializeString(obj, string(abi.encodePacked("parameters[", Strings.toString(i), "]")), tupleObj);
     }
 
     // Write the JSON to the file
     vm.writeJson(output, _filePath);
-  }
-
+}
   // Helper function to convert uint256 to string
   function _uint2str(uint256 _i) internal pure returns (string memory) {
     if (_i == 0) {
