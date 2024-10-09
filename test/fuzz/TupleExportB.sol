@@ -11,9 +11,10 @@ import { TestCaseHitRateLoggerToFile } from "./fuzz_helper/TestCaseHitRateLogger
 import { Tuple } from "./fuzz_helper/Tuple.sol";
 
 struct SomeVariableStruct {
-    uint256 some_number;
-    string string_title;
+  uint256 some_number;
+  string string_title;
 }
+
 contract TupleExportB is PRBTest, StdCheats {
   using stdJson for string;
 
@@ -52,7 +53,6 @@ contract TupleExportB is PRBTest, StdCheats {
   }
 
   function _loadTuple(string memory _filePath) internal {
-
     string memory json = vm.readFile(_filePath);
     bytes memory jsonData = vm.parseJson(json);
     // string memory jsonData = vm.readFile(_filePath);
@@ -61,6 +61,6 @@ contract TupleExportB is PRBTest, StdCheats {
     // data.number = jsonData.readUint("some_number");
     // data.str = jsonData.readString("string_title");
     data.number = someVariableStruct.some_number;
-    data.str= someVariableStruct.string_title;
+    data.str = someVariableStruct.string_title;
   }
 }
