@@ -1,6 +1,15 @@
 {
   "name": "Hi",
-  "parameters[0]": "tupple_0",
-  "parameters[1]": "tupple_1",
-  "parameters[2]": "tupple_2"
+  "parameters[0]": {
+    "some_number": 12345,
+    "string_title": "FirstParameter!"
+  },
+  "parameters[1]": {
+    "some_number": 987,
+    "string_title": "SecondParameter!"
+  },
+  "parameters[2]": {
+    "some_number": 54321,
+    "string_title": "ThirdParameter!"
+  }
 }

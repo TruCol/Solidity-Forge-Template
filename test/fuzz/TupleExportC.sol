@@ -64,22 +64,26 @@ contract TupleExportC is PRBTest, StdCheats {
     string memory obj = "parameters";
 
     // Create an empty array to hold the tuple entries
-    string memory output = vm.serializeString(obj, "name", parameters.name);
-    
+    string memory firstOutput = vm.serializeString(obj, "name", parameters.name);
+    string memory someOutput;
     for (uint256 i = 0; i < parameters.tupples.length; i++) {
         // Create a unique key for each tuple entry
-        string memory tupleObj = string(abi.encodePacked("tupple_", Strings.toString(i)));
+        // string memory tupleObj = string(abi.encodePacked("tupple_", Strings.toString(i)));
 
-        // Serialize the fields of the tuple into a temporary object
-        output = vm.serializeUint(tupleObj, "some_number", parameters.tupples[i].some_number);
-        output = vm.serializeString(tupleObj, "string_title", parameters.tupples[i].string_title);
+        // // Serialize the fields of the tuple into a temporary object
+        // output = vm.serializeUint(tupleObj, "some_number", parameters.tupples[i].some_number);
+        // output = vm.serializeString(tupleObj, "string_title", parameters.tupples[i].string_title);
+
+        string memory obj1 = "ThisDissapearsIntoTheVoidForTheFirstKey";
+        vm.serializeUint(firstOutput, "some_number", parameters.tupples[i].some_number);
+        string memory output = vm.serializeString(firstOutput, "string_title", parameters.tupples[i].string_title);
 
         // Merge the serialized tuple into the main array under "parameters"
-        output = vm.serializeString(obj, string(abi.encodePacked("parameters[", Strings.toString(i), "]")), tupleObj);
+        someOutput = vm.serializeString(obj, string(abi.encodePacked("parameters[", Strings.toString(i), "]")), output);
     }
 
     // Write the JSON to the file
-    vm.writeJson(output, _filePath);
+    vm.writeJson(someOutput, _filePath);
 }
   // Helper function to convert uint256 to string
   function _uint2str(uint256 _i) internal pure returns (string memory) {
