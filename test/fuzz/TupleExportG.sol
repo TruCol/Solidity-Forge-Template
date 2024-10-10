@@ -19,14 +19,14 @@ struct SomeVariableStruct {
   string string_title;
 }
 
-struct Apple {
+struct Parameter {
   uint8 hitCount;
   string parameterName;
   uint8 requiredHitCount;
 }
 
 struct HitCountParameters {
-  Apple[] apples;
+  Parameter[] apples;
   string name;
 }
 
@@ -39,47 +39,47 @@ contract TupleExportG is PRBTest, StdCheats {
   Parameters public parameters;
 
   function testStoreAndLoadTupleG() public {
-    HitCountParameters memory fruitstall = getHitCountParameters();
-    string memory serialisedFruitstal = serializeHitCountParameters(fruitstall);
-    fruitstall.apples[1].hitCount = 255;
+    HitCountParameters memory hitCountParameters = getHitCountParameters();
+    string memory serialisedHitCountParameters = serializeHitCountParameters(hitCountParameters);
+    hitCountParameters.apples[1].hitCount = 255;
 
     // Write the final JSON to the file
-    vm.writeJson(serialisedFruitstal, filePath);
+    vm.writeJson(serialisedHitCountParameters, filePath);
 
     HitCountParameters memory readStall = readJson(filePath);
 
-    assertEq(fruitstall.apples[0].parameterName, readStall.apples[0].parameterName);
-    assertEq(fruitstall.apples[1].parameterName, readStall.apples[1].parameterName);
-    assertEq(fruitstall.apples[2].parameterName, readStall.apples[2].parameterName);
+    assertEq(hitCountParameters.apples[0].parameterName, readStall.apples[0].parameterName);
+    assertEq(hitCountParameters.apples[1].parameterName, readStall.apples[1].parameterName);
+    assertEq(hitCountParameters.apples[2].parameterName, readStall.apples[2].parameterName);
 
-    assertEq(fruitstall.apples[0].hitCount, readStall.apples[0].hitCount);
+    assertEq(hitCountParameters.apples[0].hitCount, readStall.apples[0].hitCount);
     // The original struct has been changed.
-    assertEq(fruitstall.apples[1].hitCount, 255);
+    assertEq(hitCountParameters.apples[1].hitCount, 255);
     // The struct read from file still has the value that the original struct had before it was written to file.
     assertEq(readStall.apples[1].hitCount, 5);
-    assertEq(fruitstall.apples[2].hitCount, readStall.apples[2].hitCount);
+    assertEq(hitCountParameters.apples[2].hitCount, readStall.apples[2].hitCount);
 
-    assertEq(fruitstall.apples[0].requiredHitCount, readStall.apples[0].requiredHitCount);
-    assertEq(fruitstall.apples[1].requiredHitCount, readStall.apples[1].requiredHitCount);
-    assertEq(fruitstall.apples[2].requiredHitCount, readStall.apples[2].requiredHitCount);
+    assertEq(hitCountParameters.apples[0].requiredHitCount, readStall.apples[0].requiredHitCount);
+    assertEq(hitCountParameters.apples[1].requiredHitCount, readStall.apples[1].requiredHitCount);
+    assertEq(hitCountParameters.apples[2].requiredHitCount, readStall.apples[2].requiredHitCount);
   }
 
   function getHitCountParameters() public pure returns (HitCountParameters memory) {
-    // Initialize an array of Apple structs
+    // Initialize an array of Parameter structs
 
-    Apple[] memory apples = new Apple[](3);
-    apples[0] = Apple({ hitCount: 3, parameterName: "Red", requiredHitCount: 7 });
-    apples[1] = Apple({ hitCount: 5, parameterName: "Green", requiredHitCount: 5 });
-    apples[2] = Apple({ hitCount: 1, parameterName: "Yellow", requiredHitCount: 9 });
+    Parameter[] memory apples = new Parameter[](3);
+    apples[0] = Parameter({ hitCount: 3, parameterName: "Red", requiredHitCount: 7 });
+    apples[1] = Parameter({ hitCount: 5, parameterName: "Green", requiredHitCount: 5 });
+    apples[2] = Parameter({ hitCount: 1, parameterName: "Yellow", requiredHitCount: 9 });
 
     // Initialize the HitCountParameters struct
-    HitCountParameters memory fruitstall = HitCountParameters({ apples: apples, name: "Fresh Fruit" });
+    HitCountParameters memory hitCountParameters = HitCountParameters({ apples: apples, name: "TheFilename" });
 
-    return fruitstall;
+    return hitCountParameters;
   }
 
   // Function to serialize the apples array
-  function _serializeApples(Apple[] memory apples) internal pure returns (string memory) {
+  function _serializeParameters(Parameter[] memory apples) internal pure returns (string memory) {
     string[] memory applesJson = new string[](apples.length);
 
     // Serialize each apple object
@@ -109,16 +109,18 @@ contract TupleExportG is PRBTest, StdCheats {
   }
 
   // Function to serialize the HitCountParameters object to JSON
-  function serializeHitCountParameters(HitCountParameters memory fruitstall) public pure returns (string memory) {
+  function serializeHitCountParameters(
+    HitCountParameters memory hitCountParameters
+  ) public pure returns (string memory) {
     // Get the HitCountParameters data
 
-    // Serialize apples using the serializeApples function
-    string memory applesJsonArray = _serializeApples(fruitstall.apples);
+    // Serialize apples using the serializeParameters function
+    string memory applesJsonArray = _serializeParameters(hitCountParameters.apples);
 
     // Final JSON string combining apples and name
     string memory finalJson = "{";
     finalJson = string(abi.encodePacked(finalJson, '"apples":', applesJsonArray, ","));
-    finalJson = string(abi.encodePacked(finalJson, '"name":"', fruitstall.name, '"'));
+    finalJson = string(abi.encodePacked(finalJson, '"name":"', hitCountParameters.name, '"'));
     finalJson = string(abi.encodePacked(finalJson, "}"));
 
     return finalJson;
@@ -129,11 +131,10 @@ contract TupleExportG is PRBTest, StdCheats {
     bytes memory someData = vm.parseJson(json);
     localHitCountParameters = abi.decode(someData, (HitCountParameters));
 
-    emit Log("Welcome to");
     emit Log(localHitCountParameters.name);
 
     for (uint256 i = 0; i < localHitCountParameters.apples.length; i++) {
-      Apple memory apple = localHitCountParameters.apples[i];
+      Parameter memory apple = localHitCountParameters.apples[i];
 
       emit Log("apple.parameterName");
       emit Log(apple.parameterName);
