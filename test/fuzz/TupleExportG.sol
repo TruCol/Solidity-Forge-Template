@@ -9,7 +9,7 @@ import "test/TestConstants.sol";
 import { TestCaseHitRateLoggerToFile } from "./fuzz_helper/TestCaseHitRateLoggerToFile.sol";
 import { Tuple } from "./fuzz_helper/Tuple.sol"; // Correct import for stdJson
 
-struct Parameters {
+struct Params {
   SomeVariableStruct[] tuples;
   string name;
 }
@@ -19,15 +19,15 @@ struct SomeVariableStruct {
   string string_title;
 }
 
-struct Parameter {
+struct Param {
   uint8 hitCount;
   string parameterName;
   uint8 requiredHitCount;
 }
 
-struct HitCountParameters {
-  Parameter[] apples;
+struct HitCountParams {
   string name;
+  Param[] params;
 }
 
 contract TupleExportG is PRBTest, StdCheats {
@@ -36,105 +36,103 @@ contract TupleExportG is PRBTest, StdCheats {
   Tuple.StringUint256 public data;
 
   string public filePath = "./tuple_dataG.json";
-  Parameters public parameters;
+  Params public parameters;
 
   function testStoreAndLoadTupleG() public {
-    HitCountParameters memory hitCountParameters = getHitCountParameters();
-    string memory serialisedHitCountParameters = serializeHitCountParameters(hitCountParameters);
-    hitCountParameters.apples[1].hitCount = 255;
+    HitCountParams memory hitCountParams = getHitCountParams();
+    string memory serialisedHitCountParams = serializeHitCountParams(hitCountParams);
+    hitCountParams.params[1].hitCount = 255;
 
     // Write the final JSON to the file
-    vm.writeJson(serialisedHitCountParameters, filePath);
+    vm.writeJson(serialisedHitCountParams, filePath);
 
-    HitCountParameters memory readStall = readJson(filePath);
+    HitCountParams memory readStall = readJson(filePath);
 
-    assertEq(hitCountParameters.apples[0].parameterName, readStall.apples[0].parameterName);
-    assertEq(hitCountParameters.apples[1].parameterName, readStall.apples[1].parameterName);
-    assertEq(hitCountParameters.apples[2].parameterName, readStall.apples[2].parameterName);
+    assertEq(hitCountParams.params[0].parameterName, readStall.params[0].parameterName);
+    assertEq(hitCountParams.params[1].parameterName, readStall.params[1].parameterName);
+    assertEq(hitCountParams.params[2].parameterName, readStall.params[2].parameterName);
 
-    assertEq(hitCountParameters.apples[0].hitCount, readStall.apples[0].hitCount);
+    assertEq(hitCountParams.params[0].hitCount, readStall.params[0].hitCount);
     // The original struct has been changed.
-    assertEq(hitCountParameters.apples[1].hitCount, 255);
+    assertEq(hitCountParams.params[1].hitCount, 255);
     // The struct read from file still has the value that the original struct had before it was written to file.
-    assertEq(readStall.apples[1].hitCount, 5);
-    assertEq(hitCountParameters.apples[2].hitCount, readStall.apples[2].hitCount);
+    assertEq(readStall.params[1].hitCount, 5);
+    assertEq(hitCountParams.params[2].hitCount, readStall.params[2].hitCount);
 
-    assertEq(hitCountParameters.apples[0].requiredHitCount, readStall.apples[0].requiredHitCount);
-    assertEq(hitCountParameters.apples[1].requiredHitCount, readStall.apples[1].requiredHitCount);
-    assertEq(hitCountParameters.apples[2].requiredHitCount, readStall.apples[2].requiredHitCount);
+    assertEq(hitCountParams.params[0].requiredHitCount, readStall.params[0].requiredHitCount);
+    assertEq(hitCountParams.params[1].requiredHitCount, readStall.params[1].requiredHitCount);
+    assertEq(hitCountParams.params[2].requiredHitCount, readStall.params[2].requiredHitCount);
   }
 
-  function getHitCountParameters() public pure returns (HitCountParameters memory) {
-    // Initialize an array of Parameter structs
+  function getHitCountParams() public pure returns (HitCountParams memory) {
+    // Initialize an array of Param structs
 
-    Parameter[] memory apples = new Parameter[](3);
-    apples[0] = Parameter({ hitCount: 3, parameterName: "Red", requiredHitCount: 7 });
-    apples[1] = Parameter({ hitCount: 5, parameterName: "Green", requiredHitCount: 5 });
-    apples[2] = Parameter({ hitCount: 1, parameterName: "Yellow", requiredHitCount: 9 });
+    Param[] memory params = new Param[](3);
+    params[0] = Param({ hitCount: 3, parameterName: "Red", requiredHitCount: 7 });
+    params[1] = Param({ hitCount: 5, parameterName: "Green", requiredHitCount: 5 });
+    params[2] = Param({ hitCount: 1, parameterName: "Yellow", requiredHitCount: 9 });
 
-    // Initialize the HitCountParameters struct
-    HitCountParameters memory hitCountParameters = HitCountParameters({ apples: apples, name: "TheFilename" });
+    // Initialize the HitCountParams struct
+    HitCountParams memory hitCountParams = HitCountParams({ params: params, name: "TheFilename" });
 
-    return hitCountParameters;
+    return hitCountParams;
   }
 
-  // Function to serialize the apples array
-  function _serializeParameters(Parameter[] memory apples) internal pure returns (string memory) {
-    string[] memory applesJson = new string[](apples.length);
+  // Function to serialize the params array
+  function _serializeParams(Param[] memory params) internal pure returns (string memory) {
+    string[] memory paramsJson = new string[](params.length);
 
     // Serialize each apple object
-    for (uint256 i = 0; i < apples.length; i++) {
+    for (uint256 i = 0; i < params.length; i++) {
       string memory appleJson = "{";
       // This order is not important.
-      appleJson = string(abi.encodePacked(appleJson, '"hitCount":', Strings.toString(apples[i].hitCount), ","));
-      appleJson = string(abi.encodePacked(appleJson, '"parameterName":"', apples[i].parameterName, '",'));
+      appleJson = string(abi.encodePacked(appleJson, '"hitCount":', Strings.toString(params[i].hitCount), ","));
+      appleJson = string(abi.encodePacked(appleJson, '"parameterName":"', params[i].parameterName, '",'));
       appleJson = string(
-        abi.encodePacked(appleJson, '"requiredHitCount":', Strings.toString(apples[i].requiredHitCount))
+        abi.encodePacked(appleJson, '"requiredHitCount":', Strings.toString(params[i].requiredHitCount))
       );
       appleJson = string(abi.encodePacked(appleJson, "}"));
-      applesJson[i] = appleJson;
+      paramsJson[i] = appleJson;
     }
 
-    // Combine the apples array into a JSON array
-    string memory applesJsonArray = "[";
-    for (uint256 i = 0; i < applesJson.length; i++) {
-      applesJsonArray = string(abi.encodePacked(applesJsonArray, applesJson[i]));
-      if (i < applesJson.length - 1) {
-        applesJsonArray = string(abi.encodePacked(applesJsonArray, ","));
+    // Combine the params array into a JSON array
+    string memory paramsJsonArray = "[";
+    for (uint256 i = 0; i < paramsJson.length; i++) {
+      paramsJsonArray = string(abi.encodePacked(paramsJsonArray, paramsJson[i]));
+      if (i < paramsJson.length - 1) {
+        paramsJsonArray = string(abi.encodePacked(paramsJsonArray, ","));
       }
     }
-    applesJsonArray = string(abi.encodePacked(applesJsonArray, "]"));
+    paramsJsonArray = string(abi.encodePacked(paramsJsonArray, "]"));
 
-    return applesJsonArray;
+    return paramsJsonArray;
   }
 
-  // Function to serialize the HitCountParameters object to JSON
-  function serializeHitCountParameters(
-    HitCountParameters memory hitCountParameters
-  ) public pure returns (string memory) {
-    // Get the HitCountParameters data
+  // Function to serialize the HitCountParams object to JSON
+  function serializeHitCountParams(HitCountParams memory hitCountParams) public pure returns (string memory) {
+    // Get the HitCountParams data
 
-    // Serialize apples using the serializeParameters function
-    string memory applesJsonArray = _serializeParameters(hitCountParameters.apples);
+    // Serialize params using the serializeParams function
+    string memory paramsJsonArray = _serializeParams(hitCountParams.params);
 
-    // Final JSON string combining apples and name
+    // Final JSON string combining params and name
     string memory finalJson = "{";
-    finalJson = string(abi.encodePacked(finalJson, '"apples":', applesJsonArray, ","));
-    finalJson = string(abi.encodePacked(finalJson, '"name":"', hitCountParameters.name, '"'));
+    finalJson = string(abi.encodePacked(finalJson, '"params":', paramsJsonArray, ","));
+    finalJson = string(abi.encodePacked(finalJson, '"name":"', hitCountParams.name, '"'));
     finalJson = string(abi.encodePacked(finalJson, "}"));
 
     return finalJson;
   }
 
-  function readJson(string memory someFilePath) public returns (HitCountParameters memory localHitCountParameters) {
+  function readJson(string memory someFilePath) public returns (HitCountParams memory localHitCountParams) {
     string memory json = vm.readFile(someFilePath);
     bytes memory someData = vm.parseJson(json);
-    localHitCountParameters = abi.decode(someData, (HitCountParameters));
+    localHitCountParams = abi.decode(someData, (HitCountParams));
 
-    emit Log(localHitCountParameters.name);
+    emit Log(localHitCountParams.name);
 
-    for (uint256 i = 0; i < localHitCountParameters.apples.length; i++) {
-      Parameter memory apple = localHitCountParameters.apples[i];
+    for (uint256 i = 0; i < localHitCountParams.params.length; i++) {
+      Param memory apple = localHitCountParams.params[i];
 
       emit Log("apple.parameterName");
       emit Log(apple.parameterName);
@@ -143,6 +141,6 @@ contract TupleExportG is PRBTest, StdCheats {
       emit Log("apple.requiredHitCount");
       emit Log(Strings.toString(apple.requiredHitCount));
     }
-    return localHitCountParameters;
+    return localHitCountParams;
   }
 }

@@ -1,5 +1,6 @@
 {
-  "apples": [
+  "name": "TheFilename",
+  "params": [
     {
       "hitCount": 3,
       "parameterName": "Red",
@@ -15,6 +16,5 @@
       "parameterName": "Yellow",
       "requiredHitCount": 9
     }
-  ],
-  "name": "TheFilename"
+  ]
 }
