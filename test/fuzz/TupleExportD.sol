@@ -20,14 +20,14 @@ struct SomeVariableStruct {
   string string_title;
 }
 
-contract TupleExportC is PRBTest, StdCheats {
+contract TupleExportD is PRBTest, StdCheats {
   using stdJson for string;
 
   Tuple.StringUint256 public data;
-  string public filePath = "./tuple_dataC.json";
+  string public filePath = "./tuple_dataD.json";
   Parameters public parameters;
 
-  function testStoreAndLoadTupleC() public {
+  function testStoreAndLoadTupleD() public {
     initializeParameters("Hi");
   }
 
@@ -40,8 +40,19 @@ contract TupleExportC is PRBTest, StdCheats {
     addElement("SecondParameter!", 987);
     addElement("ThirdParameter!", 54321);
     // Add as many elements as you want dynamically
+    bytes memory someBytes = abi.encode(parameters);
 
-    _exportParametersToFile(filePath);
+    addElement(string(someBytes), 888);
+    vm.writeJson(string(someBytes), filePath);
+    string memory json = vm.readFile(filePath);
+    // bytes memory jsonData = vm.parseJson(json);
+    emit Log("Done Reading");
+    emit Log("Done writing");
+    // Parameters memory anotherParameters = abi.decode(jsonData);
+    // Parameters memory anotherParameters = abi.decode(jsonData, (Parameters));
+    // assertEq(anotherParameters.tuples[1].some_number, 987);
+
+    // _exportParametersToFile(filePath);
   }
 
   // Function to dynamically add elements to the struct array
@@ -63,47 +74,35 @@ contract TupleExportC is PRBTest, StdCheats {
   function _exportParametersToFile(string memory _filePath) internal {
     string memory obj = "parameters";
 
-    // Create an empty array to hold the tuple entries
-    string memory firstOutput = vm.serializeString(obj, "name", parameters.name);
-    string memory someOutput;
+    // Create the root object and serialize the name
+    string memory jsonOutput = vm.serializeString(obj, "name", parameters.name);
+
+    // Initialize the parameters array as a JSON array string
+    string memory parametersArray = "[";
+
+    // Loop through each tuple and serialize it as an object in the parameters array
     for (uint256 i = 0; i < parameters.tuples.length; i++) {
-      // Create a unique key for each tuple entry
-      // string memory tupleObj = string(abi.encodePacked("tupple_", Strings.toString(i)));
+      // Create a temporary object for each tuple
+      string memory parameterObj = vm.serializeUint("", "some_number", parameters.tuples[i].some_number);
+      parameterObj = vm.serializeString(parameterObj, "string_title", parameters.tuples[i].string_title);
 
-      // // Serialize the fields of the tuple into a temporary object
-      // output = vm.serializeUint(tupleObj, "some_number", parameters.tuples[i].some_number);
-      // output = vm.serializeString(tupleObj, "string_title", parameters.tuples[i].string_title);
+      // Append the serialized object to the parameters array
+      parametersArray = string(abi.encodePacked(parametersArray, parameterObj));
 
-      string memory obj1 = "ThisDissapearsIntoTheVoidForTheFirstKey";
-      vm.serializeUint(firstOutput, "some_number", parameters.tuples[i].some_number);
-      string memory output = vm.serializeString(firstOutput, "string_title", parameters.tuples[i].string_title);
-
-      // Merge the serialized tuple into the main array under "parameters"
-      someOutput = vm.serializeString(obj, string(abi.encodePacked("parameters[", Strings.toString(i), "]")), output);
+      // Add a comma if it's not the last element
+      if (i < parameters.tuples.length - 1) {
+        parametersArray = string(abi.encodePacked(parametersArray, ","));
+      }
     }
+
+    // Close the parameters array
+    parametersArray = string(abi.encodePacked(parametersArray, "]"));
+
+    // Merge the parameters array into the JSON output
+    jsonOutput = vm.serializeString(jsonOutput, "parameters", parametersArray);
 
     // Write the JSON to the file
-    vm.writeJson(someOutput, _filePath);
-  }
-
-  // Helper function to convert uint256 to string
-  function _uint2str(uint256 _i) internal pure returns (string memory) {
-    if (_i == 0) {
-      return "0";
-    }
-    uint256 j = _i;
-    uint256 len;
-    while (j != 0) {
-      len++;
-      j /= 10;
-    }
-    bytes memory bstr = new bytes(len);
-    uint256 k = len - 1;
-    while (_i != 0) {
-      bstr[k--] = bytes1(uint8(48 + (_i % 10)));
-      _i /= 10;
-    }
-    return string(bstr);
+    vm.writeJson(jsonOutput, _filePath);
   }
 
   function _loadTuple(string memory _filePath) internal {
