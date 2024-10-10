@@ -20,12 +20,12 @@ struct SomeVariableStruct {
 }
 
 struct Apple {
-  string color;
-  uint8 sourness;
-  uint8 sweetness;
+  uint8 hitCount;
+  string parameterName;
+  uint8 requiredHitCount;
 }
 
-struct FruitStall {
+struct HitCountParameters {
   Apple[] apples;
   string name;
 }
@@ -39,41 +39,41 @@ contract TupleExportG is PRBTest, StdCheats {
   Parameters public parameters;
 
   function testStoreAndLoadTupleG() public {
-    FruitStall memory fruitstall = getFruitStall();
-    string memory serialisedFruitstal = serializeFruitStall(fruitstall);
-    fruitstall.apples[1].sourness = 255;
+    HitCountParameters memory fruitstall = getHitCountParameters();
+    string memory serialisedFruitstal = serializeHitCountParameters(fruitstall);
+    fruitstall.apples[1].hitCount = 255;
 
     // Write the final JSON to the file
     vm.writeJson(serialisedFruitstal, filePath);
 
-    FruitStall memory readStall = readJson(filePath);
+    HitCountParameters memory readStall = readJson(filePath);
 
-    assertEq(fruitstall.apples[0].color, readStall.apples[0].color);
-    assertEq(fruitstall.apples[1].color, readStall.apples[1].color);
-    assertEq(fruitstall.apples[2].color, readStall.apples[2].color);
+    assertEq(fruitstall.apples[0].parameterName, readStall.apples[0].parameterName);
+    assertEq(fruitstall.apples[1].parameterName, readStall.apples[1].parameterName);
+    assertEq(fruitstall.apples[2].parameterName, readStall.apples[2].parameterName);
 
-    assertEq(fruitstall.apples[0].sourness, readStall.apples[0].sourness);
+    assertEq(fruitstall.apples[0].hitCount, readStall.apples[0].hitCount);
     // The original struct has been changed.
-    assertEq(fruitstall.apples[1].sourness, 255);
+    assertEq(fruitstall.apples[1].hitCount, 255);
     // The struct read from file still has the value that the original struct had before it was written to file.
-    assertEq(readStall.apples[1].sourness, 5);
-    assertEq(fruitstall.apples[2].sourness, readStall.apples[2].sourness);
+    assertEq(readStall.apples[1].hitCount, 5);
+    assertEq(fruitstall.apples[2].hitCount, readStall.apples[2].hitCount);
 
-    assertEq(fruitstall.apples[0].sweetness, readStall.apples[0].sweetness);
-    assertEq(fruitstall.apples[1].sweetness, readStall.apples[1].sweetness);
-    assertEq(fruitstall.apples[2].sweetness, readStall.apples[2].sweetness);
+    assertEq(fruitstall.apples[0].requiredHitCount, readStall.apples[0].requiredHitCount);
+    assertEq(fruitstall.apples[1].requiredHitCount, readStall.apples[1].requiredHitCount);
+    assertEq(fruitstall.apples[2].requiredHitCount, readStall.apples[2].requiredHitCount);
   }
 
-  function getFruitStall() public pure returns (FruitStall memory) {
+  function getHitCountParameters() public pure returns (HitCountParameters memory) {
     // Initialize an array of Apple structs
 
     Apple[] memory apples = new Apple[](3);
-    apples[0] = Apple({ color: "Red", sourness: 3, sweetness: 7 });
-    apples[1] = Apple({ color: "Green", sourness: 5, sweetness: 5 });
-    apples[2] = Apple({ color: "Yellow", sourness: 1, sweetness: 9 });
+    apples[0] = Apple({ hitCount: 3, parameterName: "Red", requiredHitCount: 7 });
+    apples[1] = Apple({ hitCount: 5, parameterName: "Green", requiredHitCount: 5 });
+    apples[2] = Apple({ hitCount: 1, parameterName: "Yellow", requiredHitCount: 9 });
 
-    // Initialize the FruitStall struct
-    FruitStall memory fruitstall = FruitStall({ apples: apples, name: "Fresh Fruit" });
+    // Initialize the HitCountParameters struct
+    HitCountParameters memory fruitstall = HitCountParameters({ apples: apples, name: "Fresh Fruit" });
 
     return fruitstall;
   }
@@ -85,9 +85,12 @@ contract TupleExportG is PRBTest, StdCheats {
     // Serialize each apple object
     for (uint256 i = 0; i < apples.length; i++) {
       string memory appleJson = "{";
-      appleJson = string(abi.encodePacked(appleJson, '"color":"', apples[i].color, '",'));
-      appleJson = string(abi.encodePacked(appleJson, '"sourness":', Strings.toString(apples[i].sourness), ","));
-      appleJson = string(abi.encodePacked(appleJson, '"sweetness":', Strings.toString(apples[i].sweetness)));
+      // This order is not important.
+      appleJson = string(abi.encodePacked(appleJson, '"hitCount":', Strings.toString(apples[i].hitCount), ","));
+      appleJson = string(abi.encodePacked(appleJson, '"parameterName":"', apples[i].parameterName, '",'));
+      appleJson = string(
+        abi.encodePacked(appleJson, '"requiredHitCount":', Strings.toString(apples[i].requiredHitCount))
+      );
       appleJson = string(abi.encodePacked(appleJson, "}"));
       applesJson[i] = appleJson;
     }
@@ -105,9 +108,9 @@ contract TupleExportG is PRBTest, StdCheats {
     return applesJsonArray;
   }
 
-  // Function to serialize the FruitStall object to JSON
-  function serializeFruitStall(FruitStall memory fruitstall) public pure returns (string memory) {
-    // Get the FruitStall data
+  // Function to serialize the HitCountParameters object to JSON
+  function serializeHitCountParameters(HitCountParameters memory fruitstall) public pure returns (string memory) {
+    // Get the HitCountParameters data
 
     // Serialize apples using the serializeApples function
     string memory applesJsonArray = _serializeApples(fruitstall.apples);
@@ -121,24 +124,24 @@ contract TupleExportG is PRBTest, StdCheats {
     return finalJson;
   }
 
-  function readJson(string memory someFilePath) public returns (FruitStall memory localFruitStall) {
+  function readJson(string memory someFilePath) public returns (HitCountParameters memory localHitCountParameters) {
     string memory json = vm.readFile(someFilePath);
     bytes memory someData = vm.parseJson(json);
-    localFruitStall = abi.decode(someData, (FruitStall));
+    localHitCountParameters = abi.decode(someData, (HitCountParameters));
 
     emit Log("Welcome to");
-    emit Log(localFruitStall.name);
+    emit Log(localHitCountParameters.name);
 
-    for (uint256 i = 0; i < localFruitStall.apples.length; i++) {
-      Apple memory apple = localFruitStall.apples[i];
+    for (uint256 i = 0; i < localHitCountParameters.apples.length; i++) {
+      Apple memory apple = localHitCountParameters.apples[i];
 
-      emit Log("apple.color");
-      emit Log(apple.color);
-      emit Log("apple.sourness");
-      emit Log(Strings.toString(apple.sourness));
-      emit Log("apple.sweetness");
-      emit Log(Strings.toString(apple.sweetness));
+      emit Log("apple.parameterName");
+      emit Log(apple.parameterName);
+      emit Log("apple.hitCount");
+      emit Log(Strings.toString(apple.hitCount));
+      emit Log("apple.requiredHitCount");
+      emit Log(Strings.toString(apple.requiredHitCount));
     }
-    return localFruitStall;
+    return localHitCountParameters;
   }
 }

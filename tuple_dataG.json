@@ -1,19 +1,19 @@
 {
   "apples": [
     {
-      "color": "Red",
-      "sourness": 3,
-      "sweetness": 7
+      "hitCount": 3,
+      "parameterName": "Red",
+      "requiredHitCount": 7
     },
     {
-      "color": "Green",
-      "sourness": 5,
-      "sweetness": 5
+      "hitCount": 5,
+      "parameterName": "Green",
+      "requiredHitCount": 5
     },
     {
-      "color": "Yellow",
-      "sourness": 1,
-      "sweetness": 9
+      "hitCount": 1,
+      "parameterName": "Yellow",
+      "requiredHitCount": 9
     }
   ],
   "name": "Fresh Fruit"
