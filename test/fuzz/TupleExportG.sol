@@ -65,7 +65,7 @@ contract TupleExportG is PRBTest, StdCheats {
   }
 
   function getHitCountParams() public pure returns (HitCountParams memory) {
-    // Initialize an array of Param structs
+    // Initialize an array of Param structs.
 
     Param[] memory params = new Param[](3);
     params[0] = Param({ hitCount: 3, parameterName: "Red", requiredHitCount: 7 });
