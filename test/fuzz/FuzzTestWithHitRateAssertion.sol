@@ -6,12 +6,12 @@ import { StdCheats } from "forge-std/src/StdCheats.sol";
 import { Vm } from "forge-std/src/Vm.sol";
 import "test/TestConstants.sol";
 import { FuzzTestCaseCounter } from "./fuzz_helper/FuzzTestCaseCounter.sol";
-import { IterableTupleMapping } from "./fuzz_helper/IterableTupleMapping.sol";
+import { IterableTripleMapping } from "./fuzz_helper/IterableTripleMapping.sol";
 import { SetupInitialisation } from "./fuzz_helper/SetupInitialisation.sol";
 
 contract FuzzTestWithHitRateAssertion is PRBTest, StdCheats {
-  using IterableTupleMapping for IterableTupleMapping.Map;
-  IterableTupleMapping.Map private _tupleMapping;
+  using IterableTripleMapping for IterableTripleMapping.Map;
+  IterableTripleMapping.Map private _tupleMapping;
 
   FuzzTestCaseCounter private _logMapping;
 

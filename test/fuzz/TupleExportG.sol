@@ -7,7 +7,7 @@ import { stdJson } from "forge-std/src/StdJson.sol";
 import { Vm } from "forge-std/src/Vm.sol";
 import "test/TestConstants.sol";
 import { TestCaseHitRateLoggerToFile } from "./fuzz_helper/TestCaseHitRateLoggerToFile.sol";
-import { Tuple } from "./fuzz_helper/Tuple.sol"; // Correct import for stdJson
+import { Triple } from "./fuzz_helper/Triple.sol"; // Correct import for stdJson
 
 struct Params {
   SomeVariableStruct[] tuples;
@@ -30,15 +30,15 @@ struct HitCountParams {
   Param[] params;
 }
 
-contract TupleExportG is PRBTest, StdCheats {
+contract TripleExportG is PRBTest, StdCheats {
   using stdJson for string;
 
-  Tuple.StringUint256 public data;
+  Triple.ParameterStorage public data;
 
   string public filePath = "./tuple_dataG.json";
   Params public parameters;
 
-  function testStoreAndLoadTupleG() public {
+  function testStoreAndLoadTripleG() public {
     HitCountParams memory hitCountParams = getHitCountParams();
     string memory serialisedHitCountParams = serializeHitCountParams(hitCountParams);
     hitCountParams.params[1].hitCount = 255;

@@ -24,50 +24,43 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { PRBTest } from "@prb/test/src/PRBTest.sol";
 import { console2 } from "forge-std/src/console2.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
+import { stdJson } from "forge-std/src/StdJson.sol";
 import "forge-std/src/Vm.sol";
 import "test/TestConstants.sol";
-import { IterableTupleMapping } from "./IterableTupleMapping.sol";
+import { IterableTripleMapping } from "./IterableTripleMapping.sol";
 import { OverWriteFile } from "./OverWriteFile.sol";
 import { TestCaseHitRateLoggerToFile } from "./TestCaseHitRateLoggerToFile.sol";
-import { Tuple } from "./Tuple.sol";
-/**
-Stores the counters used to track how often the different branches of the tests are covered.*/
-struct LogParams {
-  Tuple.StringUint256 a;
-  Tuple.StringUint256 b;
-  Tuple.StringUint256 c;
-  Tuple.StringUint256 d;
-  Tuple.StringUint256 e;
-  Tuple.StringUint256 f;
-  Tuple.StringUint256 g;
-  Tuple.StringUint256 h;
-  Tuple.StringUint256 i;
-  Tuple.StringUint256 j;
-  Tuple.StringUint256 k;
-  Tuple.StringUint256 l;
-  Tuple.StringUint256 m;
-  Tuple.StringUint256 n;
-  Tuple.StringUint256 o;
-  Tuple.StringUint256 p;
-  Tuple.StringUint256 q;
-  Tuple.StringUint256 r;
-  Tuple.StringUint256 s;
-  Tuple.StringUint256 t;
-  Tuple.StringUint256 u;
-  Tuple.StringUint256 v;
-  Tuple.StringUint256 w;
-  Tuple.StringUint256 x;
-  Tuple.StringUint256 y;
-  Tuple.StringUint256 z;
+import { Triple } from "./Triple.sol";
+import { WritingToFile } from "./WritingToFile.sol";
+
+// struct Params {
+//   SomeVariableStruct[] tuples;
+//   string name;
+// }
+
+// struct SomeVariableStruct {
+//   uint256 some_number;
+//   string string_title;
+// }
+
+struct HitCountParams {
+  string name;
+  Triple.ParameterStorage[] params;
 }
 
 contract FuzzTestCaseCounter is PRBTest, StdCheats {
-  using IterableTupleMapping for IterableTupleMapping.Map;
-  IterableTupleMapping.Map private _tupleMapping;
+  using IterableTripleMapping for IterableTripleMapping.Map;
+  IterableTripleMapping.Map private _tupleMapping;
+  WritingToFile private _writingToFile = new WritingToFile();
+
+  using stdJson for string;
+
+  Triple.ParameterStorage public data;
+
+  string public filePath = "./tuple_dataG.json";
 
   TestCaseHitRateLoggerToFile private _testCaseHitRateLoggerToFile;
   string private _hitRateFilePath;
-  LogParams private _logParams;
 
   constructor(string memory testLogTimestampFilePath, string memory testFunctionName) {
     _testCaseHitRateLoggerToFile = new TestCaseHitRateLoggerToFile();
@@ -82,28 +75,37 @@ contract FuzzTestCaseCounter is PRBTest, StdCheats {
   /** Exports the current _tupleMapping to the already existing log file. Throws an error
   if the log file does not yet exist.*/
   function overwriteExistingMapLogFile(string memory hitRateFilePath) public {
-    // TODO: assert the file already exists, throw error if file does not yet exist.
-    string memory serialisedTextString = _testCaseHitRateLoggerToFile.convertHitRatesToString(
-      _tupleMapping.getKeys(),
-      _tupleMapping.getValues()
-    );
-    // overwriteFileContent(serialisedTextString, hitRateFilePath);
-    _testCaseHitRateLoggerToFile.overwriteFileContent(serialisedTextString, hitRateFilePath);
+    HitCountParams memory hitCountParams = getHitCountParams();
+    string memory serialisedHitCountParams = serializeHitCountParams(hitCountParams);
+
+    // Write the final JSON to the file
+    vm.writeJson(serialisedHitCountParams, filePath);
     emit Log("Wrote to file!");
     // TODO: assert the log filecontent equals the current _tupleMappingping values.
+  }
+
+  function getHitCountParams() public pure returns (HitCountParams memory) {
+    // Initialize an array of Param structs.
+
+    Triple.ParameterStorage[] memory params = new Triple.ParameterStorage[](3);
+    params[0] = Triple.ParameterStorage({ hitCount: 3, parameterName: "Red", requiredHitCount: 7 });
+    params[1] = Triple.ParameterStorage({ hitCount: 5, parameterName: "Green", requiredHitCount: 5 });
+    params[2] = Triple.ParameterStorage({ hitCount: 1, parameterName: "Yellow", requiredHitCount: 9 });
+
+    // Initialize the HitCountParams struct
+    HitCountParams memory hitCountParams = HitCountParams({ params: params, name: "TheFilename" });
+
+    return hitCountParams;
   }
 
   /** Reads the log data (parameter name and value) from the file, converts it
 into a struct, and then converts that struct into this _tupleMappingping.
  */
   function readHitRatesFromLogFileAndSetToMap(string memory hitRateFilePath) public {
-    bytes memory data = _testCaseHitRateLoggerToFile.readDataFromFile(hitRateFilePath);
-    emit Log("About to do decode");
-    // abi.decode(data, (LogParams));
-    // Unpack sorted HitRate data from file into HitRatesReturnAll object.
-    LogParams memory readLogParams = abi.decode(data, (LogParams));
+    HitCountParams memory hitRatesReadFromFile = readJson(filePath);
+
     // Update the hit rate _tupleMappingping using the HitRatesReturnAll object.
-    updateLogParamMapping({ logParams: readLogParams });
+    updateLogParamMapping({ hitRatesReadFromFile: hitRatesReadFromFile });
 
     // TODO: assert the data in the log file equals the data in this _tupleMapping.
   }
@@ -113,49 +115,13 @@ into a struct, and then converts that struct into this _tupleMappingping.
     string memory testLogTimestampFilePath,
     string memory testFunctionName
   ) public returns (string memory hitRateFilePath) {
-    _logParams = LogParams({
-      a: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
-      b: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
-      c: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 2),
-      d: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 3),
-      e: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
-      f: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
-      g: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
-      h: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
-      i: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
-      j: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
-      k: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
-      l: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
-      m: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
-      n: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
-      o: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
-      p: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
-      q: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
-      r: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
-      s: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
-      t: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
-      u: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
-      v: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
-      w: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
-      x: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
-      y: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4),
-      z: Tuple.StringUint256(_INITIAL_VARIABLE_PLACEHOLDER, 4)
-    });
-    emit Log("AFTER INITIALISATION Setting a with number:");
-    emit Log(Strings.toString(_logParams.a.number));
-    emit Log("Setting a with str:");
-    emit Log(_logParams.a.str);
-    updateLogParamMapping(_logParams);
-
-    // This should just be to get the hitRateFilePath because the data should
-    // already exist.
-    hitRateFilePath = _testCaseHitRateLoggerToFile.createLogIfNotExistAndReadLogData(
+    string memory temporaryFileContentFiller = "temporaryFiller";
+    hitRateFilePath = _writingToFile.createLogFileIfItDoesNotExist(
       testLogTimestampFilePath,
       testFunctionName,
-      _tupleMapping.getKeys(),
-      _tupleMapping.getValues()
+      temporaryFileContentFiller
     );
-
+    overwriteExistingMapLogFile(hitRateFilePath);
     return hitRateFilePath;
   }
 
@@ -164,66 +130,81 @@ into a struct, and then converts that struct into this _tupleMappingping.
   }
 
   // solhint-disable-next-line foundry-test-functions
-  function updateLogParamMapping(LogParams memory logParams) public {
-    // TODO: update the keys to represent the actual keys in the logParams object.
-    for (uint256 i = 0; i < _MAX_NR_OF_TEST_LOG_VALUES_PER_LOG_FILE; i++) {
-      if (i == 0) {
-        emit Log("Setting a with number:");
-        emit Log(Strings.toString(logParams.a.number));
-        emit Log("Setting a with str:");
-        emit Log(logParams.a.str);
-        _tupleMapping.set("a", logParams.a);
-      } else if (i == 1) {
-        _tupleMapping.set("b", logParams.b);
-      } else if (i == 2) {
-        _tupleMapping.set("c", logParams.c);
-      } else if (i == 3) {
-        _tupleMapping.set("d", logParams.d);
-      } else if (i == 4) {
-        _tupleMapping.set("e", logParams.e);
-      } else if (i == 5) {
-        _tupleMapping.set("f", logParams.f);
-      } else if (i == 6) {
-        _tupleMapping.set("g", logParams.g);
-      } else if (i == 7) {
-        _tupleMapping.set("h", logParams.h);
-      } else if (i == 8) {
-        _tupleMapping.set("i", logParams.i);
-      } else if (i == 9) {
-        _tupleMapping.set("j", logParams.j);
-      } else if (i == 10) {
-        _tupleMapping.set("k", logParams.k);
-      } else if (i == 11) {
-        _tupleMapping.set("l", logParams.l);
-      } else if (i == 12) {
-        _tupleMapping.set("m", logParams.m);
-      } else if (i == 13) {
-        _tupleMapping.set("n", logParams.n);
-      } else if (i == 14) {
-        _tupleMapping.set("o", logParams.o);
-      } else if (i == 15) {
-        _tupleMapping.set("p", logParams.p);
-      } else if (i == 16) {
-        _tupleMapping.set("q", logParams.q);
-      } else if (i == 17) {
-        _tupleMapping.set("r", logParams.r);
-      } else if (i == 18) {
-        _tupleMapping.set("s", logParams.s);
-      } else if (i == 19) {
-        _tupleMapping.set("t", logParams.t);
-      } else if (i == 20) {
-        _tupleMapping.set("u", logParams.u);
-      } else if (i == 21) {
-        _tupleMapping.set("v", logParams.v);
-      } else if (i == 22) {
-        _tupleMapping.set("w", logParams.w);
-      } else if (i == 23) {
-        _tupleMapping.set("x", logParams.x);
-      } else if (i == 24) {
-        _tupleMapping.set("y", logParams.y);
-      } else if (i == 25) {
-        _tupleMapping.set("z", logParams.z);
+  function updateLogParamMapping(HitCountParams memory hitRatesReadFromFile) public {
+    // First remove all existing entries (key value pairs) form map:
+    _tupleMapping.emptyMap();
+
+    // IterableTripleMapping.Map memory emptyTupleMapping;
+    // using IterableTripleMapping for IterableTripleMapping.Map;
+    // IterableTripleMapping.Map memory emptyTupleMapping;
+    for (uint256 i = 0; i < hitRatesReadFromFile.params.length; i++) {
+      _tupleMapping.set(Strings.toString(i), hitRatesReadFromFile.params[i]);
+    }
+  }
+
+  // Function to serialize the HitCountParams object to JSON
+  function serializeHitCountParams(HitCountParams memory hitCountParams) public pure returns (string memory) {
+    // Get the HitCountParams data
+
+    // Serialize params using the serializeParams function
+    string memory paramsJsonArray = _serializeParams(hitCountParams.params);
+
+    // Final JSON string combining params and name
+    string memory finalJson = "{";
+    finalJson = string(abi.encodePacked(finalJson, '"params":', paramsJsonArray, ","));
+    finalJson = string(abi.encodePacked(finalJson, '"name":"', hitCountParams.name, '"'));
+    finalJson = string(abi.encodePacked(finalJson, "}"));
+
+    return finalJson;
+  }
+
+  // Function to serialize the params array
+  function _serializeParams(Triple.ParameterStorage[] memory params) internal pure returns (string memory) {
+    string[] memory paramsJson = new string[](params.length);
+
+    // Serialize each apple object
+    for (uint256 i = 0; i < params.length; i++) {
+      string memory appleJson = "{";
+      // This order is not important.
+      appleJson = string(abi.encodePacked(appleJson, '"hitCount":', Strings.toString(params[i].hitCount), ","));
+      appleJson = string(abi.encodePacked(appleJson, '"parameterName":"', params[i].parameterName, '",'));
+      appleJson = string(
+        abi.encodePacked(appleJson, '"requiredHitCount":', Strings.toString(params[i].requiredHitCount))
+      );
+      appleJson = string(abi.encodePacked(appleJson, "}"));
+      paramsJson[i] = appleJson;
+    }
+
+    // Combine the params array into a JSON array
+    string memory paramsJsonArray = "[";
+    for (uint256 i = 0; i < paramsJson.length; i++) {
+      paramsJsonArray = string(abi.encodePacked(paramsJsonArray, paramsJson[i]));
+      if (i < paramsJson.length - 1) {
+        paramsJsonArray = string(abi.encodePacked(paramsJsonArray, ","));
       }
     }
+    paramsJsonArray = string(abi.encodePacked(paramsJsonArray, "]"));
+
+    return paramsJsonArray;
+  }
+
+  function readJson(string memory someFilePath) public returns (HitCountParams memory localHitCountParams) {
+    string memory json = vm.readFile(someFilePath);
+    bytes memory someData = vm.parseJson(json);
+    localHitCountParams = abi.decode(someData, (HitCountParams));
+
+    emit Log(localHitCountParams.name);
+
+    for (uint256 i = 0; i < localHitCountParams.params.length; i++) {
+      Triple.ParameterStorage memory apple = localHitCountParams.params[i];
+
+      emit Log("apple.parameterName");
+      emit Log(apple.parameterName);
+      emit Log("apple.hitCount");
+      emit Log(Strings.toString(apple.hitCount));
+      emit Log("apple.requiredHitCount");
+      emit Log(Strings.toString(apple.requiredHitCount));
+    }
+    return localHitCountParams;
   }
 }

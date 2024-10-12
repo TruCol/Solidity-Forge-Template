@@ -3,25 +3,25 @@ pragma solidity >=0.8.25 <0.9.0;
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { console2 } from "forge-std/src/console2.sol";
 import "test/TestConstants.sol";
-import { Tuple } from "./Tuple.sol";
+import { Triple } from "./Triple.sol";
 
 error VariableNotFoundError(string message, string variableName);
 error DidNotFindEmptyLogEntry(string message, string variableName);
 
-library IterableTupleMapping {
-  struct ValueEntryTuple {
-    Tuple.StringUint256 something;
+library IterableTripleMapping {
+  struct ValueEntryTriple {
+    Triple.ParameterStorage something;
     uint256 number;
   }
   // Iterable mapping from string[] to uint;
   struct Map {
     string[] keys;
-    mapping(string => Tuple.StringUint256) values;
+    mapping(string => Triple.ParameterStorage) values;
     mapping(string => uint256) indexOf;
     mapping(string => bool) inserted;
   }
 
-  function get(Map storage map, string memory key) public view returns (Tuple.StringUint256 memory someValue) {
+  function get(Map storage map, string memory key) public view returns (Triple.ParameterStorage memory someValue) {
     someValue = map.values[key];
     return someValue;
   }
@@ -30,8 +30,10 @@ library IterableTupleMapping {
     return map.keys;
   }
 
-  function getValues(Map storage map) public view returns (Tuple.StringUint256[] memory) {
-    Tuple.StringUint256[] memory listOfValues = new Tuple.StringUint256[](_MAX_NR_OF_TEST_LOG_VALUES_PER_LOG_FILE);
+  function getValues(Map storage map) public view returns (Triple.ParameterStorage[] memory) {
+    Triple.ParameterStorage[] memory listOfValues = new Triple.ParameterStorage[](
+      _MAX_NR_OF_TEST_LOG_VALUES_PER_LOG_FILE
+    );
 
     if (map.keys.length > 1) {
       for (uint256 i = 0; i < map.keys.length; i++) {
@@ -49,7 +51,7 @@ library IterableTupleMapping {
     return map.keys.length;
   }
 
-  function set(Map storage map, string memory key, Tuple.StringUint256 memory val) public {
+  function set(Map storage map, string memory key, Triple.ParameterStorage memory val) public {
     if (map.inserted[key]) {
       map.values[key] = val;
     } else {
@@ -60,7 +62,7 @@ library IterableTupleMapping {
     }
   }
 
-  function setDuplicateFunction(Map storage map, string memory key, Tuple.StringUint256 memory val) public {
+  function setDuplicateFunction(Map storage map, string memory key, Triple.ParameterStorage memory val) public {
     if (map.inserted[key]) {
       // map.values[key] = val;
     } else {
@@ -76,8 +78,8 @@ library IterableTupleMapping {
     // If a value tuple string equals variableName, get the uint256 of that tuple and return it.
     // otherwise, return 0.
     for (uint256 i = 0; i < map.keys.length; i++) {
-      if (keccak256(bytes(map.values[map.keys[i]].str)) == keccak256(bytes(variableName))) {
-        return map.values[map.keys[i]].number;
+      if (keccak256(bytes(map.values[map.keys[i]].parameterName)) == keccak256(bytes(variableName))) {
+        return map.values[map.keys[i]].hitCount;
       }
     }
     return 0;
@@ -88,8 +90,8 @@ library IterableTupleMapping {
     bool foundVariable = false;
     for (uint256 i = 0; i < map.keys.length; i++) {
       // If a value tuple string equals variableName, increment its value.
-      if (keccak256(bytes(map.values[map.keys[i]].str)) == keccak256(bytes(variableName))) {
-        map.values[map.keys[i]].number = map.values[map.keys[i]].number + increment;
+      if (keccak256(bytes(map.values[map.keys[i]].parameterName)) == keccak256(bytes(variableName))) {
+        map.values[map.keys[i]].hitCount = map.values[map.keys[i]].hitCount + increment;
         foundVariable = true;
       }
     }
@@ -101,7 +103,7 @@ library IterableTupleMapping {
   function variableIsStored(Map storage map, string memory variableName) public returns (bool isStored) {
     for (uint256 i = 0; i < map.keys.length; i++) {
       // Per key, get the tuple value, per tuple string, check if it equals the variableName.
-      if (keccak256(bytes(map.values[map.keys[i]].str)) == keccak256(bytes(variableName))) {
+      if (keccak256(bytes(map.values[map.keys[i]].parameterName)) == keccak256(bytes(variableName))) {
         return true;
       }
     }
@@ -118,7 +120,8 @@ library IterableTupleMapping {
     } else {
       uint256 newCount = 1;
       // Store the variable name and 0 value at the next index/letterkey.
-      Tuple.StringUint256 memory newValue = Tuple.StringUint256(variableName, newCount);
+      // TODO: fix duplicate count entry.
+      Triple.ParameterStorage memory newValue = Triple.ParameterStorage(variableName, newCount, newCount);
       // set(map, variableName, newValue);
 
       // TODO: find out the first empty place, and put it there.
@@ -126,9 +129,9 @@ library IterableTupleMapping {
 
       for (uint256 i = 0; i < map.keys.length; i++) {
         if (
-          keccak256(abi.encodePacked(get(map, map.keys[i]).str)) ==
+          keccak256(abi.encodePacked(get(map, map.keys[i]).parameterName)) ==
           keccak256(abi.encodePacked(_INITIAL_VARIABLE_PLACEHOLDER)) ||
-          keccak256(abi.encodePacked(get(map, map.keys[i]).str)) == keccak256(abi.encodePacked(""))
+          keccak256(abi.encodePacked(get(map, map.keys[i]).parameterName)) == keccak256(abi.encodePacked(""))
         ) {
           setDuplicateFunction(map, map.keys[i], newValue);
           foundEmptyEntry = true;
@@ -140,5 +143,15 @@ library IterableTupleMapping {
         revert DidNotFindEmptyLogEntry("Error, did not find empty log entry for variable:", variableName);
       }
     }
+  }
+
+  function emptyMap(Map storage map) public {
+    for (uint256 i = 0; i < map.keys.length; i++) {
+      string memory key = map.keys[i];
+      delete map.values[key];
+      delete map.inserted[key];
+      delete map.indexOf[key];
+    }
+    delete map.keys;
   }
 }
