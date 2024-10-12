@@ -55,6 +55,10 @@ library IterableTripleMapping {
     if (map.inserted[key]) {
       map.values[key] = val;
     } else {
+      console2.log("setting key=");
+      console2.log(key);
+      console2.log("setting val.parameterName=");
+      console2.log(val.parameterName);
       map.inserted[key] = true;
       map.values[key] = val;
       map.indexOf[key] = map.keys.length;
@@ -101,12 +105,16 @@ library IterableTripleMapping {
   }
 
   function variableIsStored(Map storage map, string memory variableName) public returns (bool isStored) {
+    console2.log("variableName=");
+    console2.log(variableName);
     for (uint256 i = 0; i < map.keys.length; i++) {
       // Per key, get the tuple value, per tuple string, check if it equals the variableName.
       if (keccak256(bytes(map.values[map.keys[i]].parameterName)) == keccak256(bytes(variableName))) {
+        console2.log("variable Is Stored");
         return true;
       }
     }
+    console2.log("variable Is Not Stored");
     return false;
   }
 
@@ -121,27 +129,8 @@ library IterableTripleMapping {
       uint256 newCount = 1;
       // Store the variable name and 0 value at the next index/letterkey.
       // TODO: fix duplicate count entry.
-      Triple.ParameterStorage memory newValue = Triple.ParameterStorage(variableName, newCount, newCount);
-      // set(map, variableName, newValue);
-
-      // TODO: find out the first empty place, and put it there.
-      bool foundEmptyEntry = false;
-
-      for (uint256 i = 0; i < map.keys.length; i++) {
-        if (
-          keccak256(abi.encodePacked(get(map, map.keys[i]).parameterName)) ==
-          keccak256(abi.encodePacked(_INITIAL_VARIABLE_PLACEHOLDER)) ||
-          keccak256(abi.encodePacked(get(map, map.keys[i]).parameterName)) == keccak256(abi.encodePacked(""))
-        ) {
-          setDuplicateFunction(map, map.keys[i], newValue);
-          foundEmptyEntry = true;
-          break;
-        }
-      }
-
-      if (!foundEmptyEntry) {
-        revert DidNotFindEmptyLogEntry("Error, did not find empty log entry for variable:", variableName);
-      }
+      Triple.ParameterStorage memory newValue = Triple.ParameterStorage(newCount, variableName, newCount);
+      set(map, Strings.toString(map.keys.length), newValue);
     }
   }
 

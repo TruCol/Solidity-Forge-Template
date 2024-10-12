@@ -57,8 +57,6 @@ contract FuzzTestCaseCounter is PRBTest, StdCheats {
 
   Triple.ParameterStorage public data;
 
-  string public filePath = "./tuple_dataG.json";
-
   TestCaseHitRateLoggerToFile private _testCaseHitRateLoggerToFile;
   string private _hitRateFilePath;
 
@@ -79,18 +77,23 @@ contract FuzzTestCaseCounter is PRBTest, StdCheats {
     string memory serialisedHitCountParams = serializeHitCountParams(hitCountParams);
 
     // Write the final JSON to the file
-    vm.writeJson(serialisedHitCountParams, filePath);
+    vm.writeJson(serialisedHitCountParams, hitRateFilePath);
     emit Log("Wrote to file!");
     // TODO: assert the log filecontent equals the current _tupleMappingping values.
   }
 
-  function getHitCountParams() public pure returns (HitCountParams memory) {
+  function getHitCountParams() public returns (HitCountParams memory) {
     // Initialize an array of Param structs.
 
-    Triple.ParameterStorage[] memory params = new Triple.ParameterStorage[](3);
-    params[0] = Triple.ParameterStorage({ hitCount: 3, parameterName: "Red", requiredHitCount: 7 });
-    params[1] = Triple.ParameterStorage({ hitCount: 5, parameterName: "Green", requiredHitCount: 5 });
-    params[2] = Triple.ParameterStorage({ hitCount: 1, parameterName: "Yellow", requiredHitCount: 9 });
+    Triple.ParameterStorage[] memory params = new Triple.ParameterStorage[](_tupleMapping.getKeys().length);
+    for (uint256 i = 0; i < _tupleMapping.getKeys().length; i++) {
+      Triple.ParameterStorage memory parameterStorage = _tupleMapping.get(Strings.toString(i));
+      params[i] = Triple.ParameterStorage({
+        hitCount: parameterStorage.hitCount,
+        parameterName: parameterStorage.parameterName,
+        requiredHitCount: parameterStorage.requiredHitCount
+      });
+    }
 
     // Initialize the HitCountParams struct
     HitCountParams memory hitCountParams = HitCountParams({ params: params, name: "TheFilename" });
@@ -102,11 +105,12 @@ contract FuzzTestCaseCounter is PRBTest, StdCheats {
 into a struct, and then converts that struct into this _tupleMappingping.
  */
   function readHitRatesFromLogFileAndSetToMap(string memory hitRateFilePath) public {
-    HitCountParams memory hitRatesReadFromFile = readJson(filePath);
+    HitCountParams memory hitRatesReadFromFile = readJson(hitRateFilePath);
 
+    emit Log("Doing updateLogParamMapping");
     // Update the hit rate _tupleMappingping using the HitRatesReturnAll object.
     updateLogParamMapping({ hitRatesReadFromFile: hitRatesReadFromFile });
-
+    emit Log("Done with update.");
     // TODO: assert the data in the log file equals the data in this _tupleMapping.
   }
 
@@ -133,6 +137,7 @@ into a struct, and then converts that struct into this _tupleMappingping.
   function updateLogParamMapping(HitCountParams memory hitRatesReadFromFile) public {
     // First remove all existing entries (key value pairs) form map:
     _tupleMapping.emptyMap();
+    emit Log("Emptied map.");
 
     // IterableTripleMapping.Map memory emptyTupleMapping;
     // using IterableTripleMapping for IterableTripleMapping.Map;
@@ -162,17 +167,19 @@ into a struct, and then converts that struct into this _tupleMappingping.
   function _serializeParams(Triple.ParameterStorage[] memory params) internal pure returns (string memory) {
     string[] memory paramsJson = new string[](params.length);
 
-    // Serialize each apple object
+    // Serialize each paramStorage object
     for (uint256 i = 0; i < params.length; i++) {
-      string memory appleJson = "{";
+      string memory paramStorageJson = "{";
       // This order is not important.
-      appleJson = string(abi.encodePacked(appleJson, '"hitCount":', Strings.toString(params[i].hitCount), ","));
-      appleJson = string(abi.encodePacked(appleJson, '"parameterName":"', params[i].parameterName, '",'));
-      appleJson = string(
-        abi.encodePacked(appleJson, '"requiredHitCount":', Strings.toString(params[i].requiredHitCount))
+      paramStorageJson = string(
+        abi.encodePacked(paramStorageJson, '"hitCount":', Strings.toString(params[i].hitCount), ",")
       );
-      appleJson = string(abi.encodePacked(appleJson, "}"));
-      paramsJson[i] = appleJson;
+      paramStorageJson = string(abi.encodePacked(paramStorageJson, '"parameterName":"', params[i].parameterName, '",'));
+      paramStorageJson = string(
+        abi.encodePacked(paramStorageJson, '"requiredHitCount":', Strings.toString(params[i].requiredHitCount))
+      );
+      paramStorageJson = string(abi.encodePacked(paramStorageJson, "}"));
+      paramsJson[i] = paramStorageJson;
     }
 
     // Combine the params array into a JSON array
@@ -193,17 +200,15 @@ into a struct, and then converts that struct into this _tupleMappingping.
     bytes memory someData = vm.parseJson(json);
     localHitCountParams = abi.decode(someData, (HitCountParams));
 
-    emit Log(localHitCountParams.name);
-
     for (uint256 i = 0; i < localHitCountParams.params.length; i++) {
-      Triple.ParameterStorage memory apple = localHitCountParams.params[i];
+      Triple.ParameterStorage memory paramStorage = localHitCountParams.params[i];
 
-      emit Log("apple.parameterName");
-      emit Log(apple.parameterName);
-      emit Log("apple.hitCount");
-      emit Log(Strings.toString(apple.hitCount));
-      emit Log("apple.requiredHitCount");
-      emit Log(Strings.toString(apple.requiredHitCount));
+      emit Log("paramStorage.parameterName");
+      emit Log(paramStorage.parameterName);
+      emit Log("paramStorage.hitCount");
+      emit Log(Strings.toString(paramStorage.hitCount));
+      emit Log("paramStorage.requiredHitCount");
+      emit Log(Strings.toString(paramStorage.requiredHitCount));
     }
     return localHitCountParams;
   }
