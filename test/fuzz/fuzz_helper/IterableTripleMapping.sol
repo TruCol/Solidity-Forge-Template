@@ -20,26 +20,7 @@ library IterableTripleMapping {
     mapping(string => bool) inserted;
   }
 
-  function get(Map storage map, string memory key) public view returns (Triple.ParameterStorage memory someValue) {
-    someValue = map.values[key];
-    return someValue;
-  }
-
-  function getValues(Map storage map) public view returns (Triple.ParameterStorage[] memory) {
-    Triple.ParameterStorage[] memory listOfValues = new Triple.ParameterStorage[](map.keys.length);
-
-    if (map.keys.length > 1) {
-      for (uint256 i = 0; i < map.keys.length; i++) {
-        listOfValues[i] = map.values[map.keys[i]];
-      }
-    }
-    return listOfValues;
-  }
-
-  function size(Map storage map) public view returns (uint256) {
-    return map.keys.length;
-  }
-
+  // solhint-disable-next-line foundry-test-functions
   function set(Map storage map, string memory key, Triple.ParameterStorage memory val) public {
     if (map.inserted[key]) {
       map.values[key] = val;
@@ -51,10 +32,12 @@ library IterableTripleMapping {
     }
   }
 
+  // solhint-disable-next-line foundry-test-functions
   function incrementCount(Map storage map, string memory variableName, uint256 increment) public {
     // otherwise, return 0.
     bool foundVariable = false;
-    for (uint256 i = 0; i < map.keys.length; i++) {
+    uint256 nrOfKeys = map.keys.length;
+    for (uint256 i = 0; i < nrOfKeys; ++i) {
       // TODO: simplify by just comparing key to variable name. Add assert that the param variableName is the same.
       // If a value tuple string equals variableName, increment its value.
       if (keccak256(bytes(map.values[map.keys[i]].parameterName)) == keccak256(bytes(variableName))) {
@@ -67,6 +50,7 @@ library IterableTripleMapping {
     }
   }
 
+  // solhint-disable-next-line foundry-test-functions
   function initialiseParameter(
     Map storage map,
     string memory variableName,
@@ -82,6 +66,7 @@ library IterableTripleMapping {
   }
 
   /** Increments the test case hit counts in the testIterableMapping. */
+  // solhint-disable-next-line foundry-test-functions
   function incrementLogCount(Map storage map, string memory variableName) public {
     if (map.inserted[variableName]) {
       incrementCount(map, variableName, 1);
@@ -90,13 +75,34 @@ library IterableTripleMapping {
     }
   }
 
+  // solhint-disable-next-line foundry-test-functions
   function emptyMap(Map storage map) public {
-    for (uint256 i = 0; i < map.keys.length; i++) {
+    uint256 nrOfKeys = map.keys.length;
+    for (uint256 i = 0; i < nrOfKeys; ++i) {
       string memory key = map.keys[i];
       delete map.values[key];
       delete map.inserted[key];
       delete map.indexOf[key];
     }
     delete map.keys;
+  }
+
+  // solhint-disable-next-line foundry-test-functions
+  function getValues(Map storage map) public view returns (Triple.ParameterStorage[] memory listOfValues) {
+    uint256 nrOfKeys = map.keys.length;
+    listOfValues = new Triple.ParameterStorage[](nrOfKeys);
+
+    if (nrOfKeys > 1) {
+      for (uint256 i = 0; i < nrOfKeys; ++i) {
+        listOfValues[i] = map.values[map.keys[i]];
+      }
+    }
+    return listOfValues;
+  }
+
+  // solhint-disable-next-line foundry-test-functions
+  function size(Map storage map) public view returns (uint256 nrOfKeys) {
+    nrOfKeys = map.keys.length;
+    return nrOfKeys;
   }
 }

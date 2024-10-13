@@ -49,7 +49,7 @@ contract LogMapping is PRBTest, StdCheats {
     Triple.ParameterStorage[] memory parameterStorages = _tupleMapping.getValues();
     Triple.ParameterStorage[] memory params = new Triple.ParameterStorage[](parameterStorages.length);
 
-    for (uint256 i = 0; i < parameterStorages.length; i++) {
+    for (uint256 i = 0; i < parameterStorages.length; ++i) {
       params[i] = Triple.ParameterStorage({
         hitCount: parameterStorages[i].hitCount,
         parameterName: parameterStorages[i].parameterName,
@@ -101,7 +101,7 @@ into a struct, and then converts that struct into this _tupleMappingping.
 
   // solhint-disable-next-line foundry-test-functions
   function updateLogParamMapping(HitCountParams memory hitRatesReadFromFile) public {
-    for (uint256 i = 0; i < hitRatesReadFromFile.params.length; i++) {
+    for (uint256 i = 0; i < hitRatesReadFromFile.params.length; ++i) {
       Triple.ParameterStorage memory parameterStorage = hitRatesReadFromFile.params[i];
       _tupleMapping.set(parameterStorage.parameterName, parameterStorage);
     }
@@ -126,7 +126,7 @@ into a struct, and then converts that struct into this _tupleMappingping.
     string[] memory paramsJson = new string[](params.length);
 
     // Serialize each paramStorage object
-    for (uint256 i = 0; i < params.length; i++) {
+    for (uint256 i = 0; i < params.length; ++i) {
       string memory paramStorageJson = "{";
       // This order is not important.
       paramStorageJson = string(
@@ -142,7 +142,7 @@ into a struct, and then converts that struct into this _tupleMappingping.
 
     // Combine the params array into a JSON array
     string memory paramsJsonArray = "[";
-    for (uint256 i = 0; i < paramsJson.length; i++) {
+    for (uint256 i = 0; i < paramsJson.length; ++i) {
       paramsJsonArray = string(abi.encodePacked(paramsJsonArray, paramsJson[i]));
       if (i < paramsJson.length - 1) {
         paramsJsonArray = string(abi.encodePacked(paramsJsonArray, ","));
@@ -158,7 +158,7 @@ into a struct, and then converts that struct into this _tupleMappingping.
     bytes memory someData = vm.parseJson(json);
     localHitCountParams = abi.decode(someData, (HitCountParams));
 
-    for (uint256 i = 0; i < localHitCountParams.params.length; i++) {
+    for (uint256 i = 0; i < localHitCountParams.params.length; ++i) {
       Triple.ParameterStorage memory paramStorage = localHitCountParams.params[i];
 
       emit Log("paramStorage.parameterName");

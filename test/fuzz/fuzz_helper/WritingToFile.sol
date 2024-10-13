@@ -122,7 +122,7 @@ contract WritingToFile is PRBTest, StdCheats, IWritingToFile {
       return false;
     }
 
-    for (uint256 i = 0; i <= mainBytes.length - subBytes.length; i++) {
+    for (uint256 i = 0; i <= mainBytes.length - subBytes.length; ++i) {
       bool foundMatch = true;
       for (uint256 j = 0; j < subBytes.length; j++) {
         if (mainBytes[i + j] != subBytes[j]) {
