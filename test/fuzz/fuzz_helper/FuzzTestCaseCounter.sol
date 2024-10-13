@@ -29,7 +29,6 @@ import "forge-std/src/Vm.sol";
 import "test/TestConstants.sol";
 import { IterableTripleMapping } from "./IterableTripleMapping.sol";
 import { OverWriteFile } from "./OverWriteFile.sol";
-import { TestCaseHitRateLoggerToFile } from "./TestCaseHitRateLoggerToFile.sol";
 import { Triple } from "./Triple.sol";
 import { WritingToFile } from "./WritingToFile.sol";
 
@@ -57,11 +56,9 @@ contract FuzzTestCaseCounter is PRBTest, StdCheats {
 
   Triple.ParameterStorage public data;
 
-  TestCaseHitRateLoggerToFile private _testCaseHitRateLoggerToFile;
   string private _hitRateFilePath;
 
   constructor(string memory testLogTimestampFilePath, string memory testFunctionName) {
-    _testCaseHitRateLoggerToFile = new TestCaseHitRateLoggerToFile();
     _hitRateFilePath = initialiseMapping(testLogTimestampFilePath, testFunctionName);
   }
 
@@ -84,14 +81,16 @@ contract FuzzTestCaseCounter is PRBTest, StdCheats {
 
   function getHitCountParams() public returns (HitCountParams memory) {
     // Initialize an array of Param structs.
+    Triple.ParameterStorage[] memory parameterStorages = _tupleMapping.getValues();
+    Triple.ParameterStorage[] memory params = new Triple.ParameterStorage[](parameterStorages.length);
 
-    Triple.ParameterStorage[] memory params = new Triple.ParameterStorage[](_tupleMapping.getKeys().length);
-    for (uint256 i = 0; i < _tupleMapping.getKeys().length; i++) {
-      Triple.ParameterStorage memory parameterStorage = _tupleMapping.get(Strings.toString(i));
+    for (uint256 i = 0; i < parameterStorages.length; i++) {
+      // for (uint256 i = 0; i < _tupleMapping.getKeys().length; i++) {
+      // Triple.ParameterStorage memory parameterStorage = _tupleMapping.get(Strings.toString(i));
       params[i] = Triple.ParameterStorage({
-        hitCount: parameterStorage.hitCount,
-        parameterName: parameterStorage.parameterName,
-        requiredHitCount: parameterStorage.requiredHitCount
+        hitCount: parameterStorages[i].hitCount,
+        parameterName: parameterStorages[i].parameterName,
+        requiredHitCount: parameterStorages[i].requiredHitCount
       });
     }
 
@@ -139,11 +138,9 @@ into a struct, and then converts that struct into this _tupleMappingping.
     _tupleMapping.emptyMap();
     emit Log("Emptied map.");
 
-    // IterableTripleMapping.Map memory emptyTupleMapping;
-    // using IterableTripleMapping for IterableTripleMapping.Map;
-    // IterableTripleMapping.Map memory emptyTupleMapping;
     for (uint256 i = 0; i < hitRatesReadFromFile.params.length; i++) {
-      _tupleMapping.set(Strings.toString(i), hitRatesReadFromFile.params[i]);
+      Triple.ParameterStorage memory parameterStorage = hitRatesReadFromFile.params[i];
+      _tupleMapping.set(parameterStorage.parameterName, parameterStorage);
     }
   }
 

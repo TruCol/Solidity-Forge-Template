@@ -31,9 +31,7 @@ library IterableTripleMapping {
   }
 
   function getValues(Map storage map) public view returns (Triple.ParameterStorage[] memory) {
-    Triple.ParameterStorage[] memory listOfValues = new Triple.ParameterStorage[](
-      _MAX_NR_OF_TEST_LOG_VALUES_PER_LOG_FILE
-    );
+    Triple.ParameterStorage[] memory listOfValues = new Triple.ParameterStorage[](map.keys.length);
 
     if (map.keys.length > 1) {
       for (uint256 i = 0; i < map.keys.length; i++) {
@@ -60,29 +58,6 @@ library IterableTripleMapping {
       map.indexOf[key] = map.keys.length;
       map.keys.push(key);
     }
-  }
-
-  function setDuplicateFunction(Map storage map, string memory key, Triple.ParameterStorage memory val) public {
-    if (map.inserted[key]) {
-      // map.values[key] = val;
-    } else {
-      // map.inserted[key] = true;
-      // map.values[key] = val;
-      // map.indexOf[key] = map.keys.length;
-      // map.keys.push(key);
-    }
-  }
-
-  function getCurrentCount(Map storage map, string memory variableName) public returns (uint256 currentCount) {
-    // Loop values.
-    // If a value tuple string equals variableName, get the uint256 of that tuple and return it.
-    // otherwise, return 0.
-    for (uint256 i = 0; i < map.keys.length; i++) {
-      if (keccak256(bytes(map.values[map.keys[i]].parameterName)) == keccak256(bytes(variableName))) {
-        return map.values[map.keys[i]].hitCount;
-      }
-    }
-    return 0;
   }
 
   function incrementCount(Map storage map, string memory variableName, uint256 increment) public {
@@ -114,8 +89,6 @@ library IterableTripleMapping {
   /** Increments the test case hit counts in the testIterableMapping. */
   function incrementLogCount(Map storage map, string memory variableName) public {
     if (variableIsStored(map, variableName)) {
-      uint256 currentCount = getCurrentCount(map, variableName);
-
       incrementCount(map, variableName, 1);
       // uint256 variableLetterKey = getCurrentVariableLetter(variableName);
     } else {

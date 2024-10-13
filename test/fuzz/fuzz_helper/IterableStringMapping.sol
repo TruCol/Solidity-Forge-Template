@@ -43,8 +43,7 @@ library IterableStringMapping {
   }
 
   function getValues(Map storage map) public view returns (string[] memory) {
-    string[] memory listOfValues = new string[](_MAX_NR_OF_TEST_LOG_VALUES_PER_LOG_FILE);
-
+    string[] memory listOfValues = new string[](map.keys.length);
     if (map.keys.length > 1) {
       for (uint256 i = 0; i < map.keys.length; i++) {
         listOfValues[i] = map.values[map.keys[i]];
