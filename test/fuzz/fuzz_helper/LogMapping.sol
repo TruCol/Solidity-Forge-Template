@@ -12,29 +12,44 @@ struct HitCountParams {
   Triple.ParameterStorage[] params;
 }
 
-contract LogMapping is PRBTest, StdCheats {
-  using IterableTripleMapping for IterableTripleMapping.Map;
-  IterableTripleMapping.Map private _tupleMapping;
-  WritingToFile private _writingToFile = new WritingToFile();
+// solhint-disable foundry-test-functions
+interface ILogMapping {
+  function overwriteExistingMapLogFile(string memory hitRateFilePath) external;
 
+  function getHitCountParams() external returns (HitCountParams memory);
+
+  function readHitRatesFromLogFileAndSetToMap(string memory hitRateFilePath) external;
+
+  function initialiseParameter(string memory variableName, uint256 hitCount, uint256 requiredHitCount) external;
+
+  function callIncrementLogCount(string memory variableName) external;
+
+  function updateLogParamMapping(HitCountParams memory hitRatesReadFromFile) external;
+
+  function readJson(string memory someFilePath) external returns (HitCountParams memory localHitCountParams);
+
+  function getHitRateFilePath() external view returns (string memory);
+
+  function serializeHitCountParams(HitCountParams memory hitCountParams) external pure returns (string memory);
+}
+
+contract LogMapping is PRBTest, StdCheats, ILogMapping {
+  using IterableTripleMapping for IterableTripleMapping.Map;
   using stdJson for string;
 
+  IterableTripleMapping.Map private _tupleMapping;
+  WritingToFile private _writingToFile = new WritingToFile();
   Triple.ParameterStorage public data;
 
   string private _hitRateFilePath;
 
   constructor(string memory testLogTimestampFilePath, string memory testFunctionName) {
-    _hitRateFilePath = initialiseMapping(testLogTimestampFilePath, testFunctionName);
-  }
-
-  function getHitRateFilePath() public view returns (string memory) {
-    // TODO: if _hitRateFilePath == "": raise exception.
-    return _hitRateFilePath;
+    _hitRateFilePath = _initialiseMapping(testLogTimestampFilePath, testFunctionName);
   }
 
   /** Exports the current _tupleMapping to the already existing log file. Throws an error
   if the log file does not yet exist.*/
-  function overwriteExistingMapLogFile(string memory hitRateFilePath) public {
+  function overwriteExistingMapLogFile(string memory hitRateFilePath) public override {
     HitCountParams memory hitCountParams = getHitCountParams();
     string memory serialisedHitCountParams = serializeHitCountParams(hitCountParams);
 
@@ -44,7 +59,7 @@ contract LogMapping is PRBTest, StdCheats {
     // TODO: assert the log filecontent equals the current _tupleMappingping values.
   }
 
-  function getHitCountParams() public returns (HitCountParams memory) {
+  function getHitCountParams() public override returns (HitCountParams memory hitCountParams) {
     // Initialize an array of Param structs.
     Triple.ParameterStorage[] memory parameterStorages = _tupleMapping.getValues();
     Triple.ParameterStorage[] memory params = new Triple.ParameterStorage[](parameterStorages.length);
@@ -58,7 +73,7 @@ contract LogMapping is PRBTest, StdCheats {
     }
 
     // Initialize the HitCountParams struct
-    HitCountParams memory hitCountParams = HitCountParams({ params: params, name: "TheFilename" });
+    hitCountParams = HitCountParams({ params: params, name: "TheFilename" });
 
     return hitCountParams;
   }
@@ -66,7 +81,7 @@ contract LogMapping is PRBTest, StdCheats {
   /** Reads the log data (parameter name and value) from the file, converts it
 into a struct, and then converts that struct into this _tupleMappingping.
  */
-  function readHitRatesFromLogFileAndSetToMap(string memory hitRateFilePath) public {
+  function readHitRatesFromLogFileAndSetToMap(string memory hitRateFilePath) public override {
     HitCountParams memory hitRatesReadFromFile = readJson(hitRateFilePath);
 
     emit Log("Doing updateLogParamMapping");
@@ -76,44 +91,55 @@ into a struct, and then converts that struct into this _tupleMappingping.
     // TODO: assert the data in the log file equals the data in this _tupleMapping.
   }
 
-  // TODO: make private.
-  function initialiseMapping(
-    string memory testLogTimestampFilePath,
-    string memory testFunctionName
-  ) public returns (string memory hitRateFilePath) {
-    string memory temporaryFileContentFiller = "temporaryFiller";
-    hitRateFilePath = _writingToFile.createLogFileIfItDoesNotExist(
-      testLogTimestampFilePath,
-      testFunctionName,
-      temporaryFileContentFiller
-    );
-    overwriteExistingMapLogFile(hitRateFilePath);
-    return hitRateFilePath;
-  }
-
-  function initialiseParameter(string memory variableName, uint256 hitCount, uint256 requiredHitCount) public {
+  function initialiseParameter(string memory variableName, uint256 hitCount, uint256 requiredHitCount) public override {
     _tupleMapping.initialiseParameter(variableName, hitCount, requiredHitCount);
   }
 
-  function callIncrementLogCount(string memory variableName) public {
+  function callIncrementLogCount(string memory variableName) public override {
     _tupleMapping.incrementLogCount(variableName);
   }
 
   // solhint-disable-next-line foundry-test-functions
-  function updateLogParamMapping(HitCountParams memory hitRatesReadFromFile) public {
+  function updateLogParamMapping(HitCountParams memory hitRatesReadFromFile) public override {
     for (uint256 i = 0; i < hitRatesReadFromFile.params.length; ++i) {
       Triple.ParameterStorage memory parameterStorage = hitRatesReadFromFile.params[i];
       _tupleMapping.set(parameterStorage.parameterName, parameterStorage);
     }
   }
 
+  function readJson(string memory someFilePath) public override returns (HitCountParams memory localHitCountParams) {
+    string memory json = vm.readFile(someFilePath);
+    bytes memory someData = vm.parseJson(json);
+    localHitCountParams = abi.decode(someData, (HitCountParams));
+
+    for (uint256 i = 0; i < localHitCountParams.params.length; ++i) {
+      Triple.ParameterStorage memory paramStorage = localHitCountParams.params[i];
+
+      emit Log("paramStorage.parameterName");
+      emit Log(paramStorage.parameterName);
+      emit Log("paramStorage.hitCount");
+      emit Log(Strings.toString(paramStorage.hitCount));
+      emit Log("paramStorage.requiredHitCount");
+      emit Log(Strings.toString(paramStorage.requiredHitCount));
+    }
+    return localHitCountParams;
+  }
+
+  function getHitRateFilePath() public view override returns (string memory hitRateFilePath) {
+    // TODO: if _hitRateFilePath == "": raise exception.
+    hitRateFilePath = _hitRateFilePath;
+    return hitRateFilePath;
+  }
+
   // Function to serialize the HitCountParams object to JSON
-  function serializeHitCountParams(HitCountParams memory hitCountParams) public pure returns (string memory) {
+  function serializeHitCountParams(
+    HitCountParams memory hitCountParams
+  ) public pure override returns (string memory finalJson) {
     // Serialize params using the serializeParams function
     string memory paramsJsonArray = _serializeParams(hitCountParams.params);
 
     // Final JSON string combining params and name
-    string memory finalJson = "{";
+    finalJson = "{";
     finalJson = string(abi.encodePacked(finalJson, '"params":', paramsJsonArray, ","));
     finalJson = string(abi.encodePacked(finalJson, '"name":"', hitCountParams.name, '"'));
     finalJson = string(abi.encodePacked(finalJson, "}"));
@@ -122,7 +148,9 @@ into a struct, and then converts that struct into this _tupleMappingping.
   }
 
   // Function to serialize the params array
-  function _serializeParams(Triple.ParameterStorage[] memory params) internal pure returns (string memory) {
+  function _serializeParams(
+    Triple.ParameterStorage[] memory params
+  ) internal pure returns (string memory paramsJsonArray) {
     string[] memory paramsJson = new string[](params.length);
 
     // Serialize each paramStorage object
@@ -141,7 +169,7 @@ into a struct, and then converts that struct into this _tupleMappingping.
     }
 
     // Combine the params array into a JSON array
-    string memory paramsJsonArray = "[";
+    paramsJsonArray = "[";
     for (uint256 i = 0; i < paramsJson.length; ++i) {
       paramsJsonArray = string(abi.encodePacked(paramsJsonArray, paramsJson[i]));
       if (i < paramsJson.length - 1) {
@@ -153,21 +181,17 @@ into a struct, and then converts that struct into this _tupleMappingping.
     return paramsJsonArray;
   }
 
-  function readJson(string memory someFilePath) public returns (HitCountParams memory localHitCountParams) {
-    string memory json = vm.readFile(someFilePath);
-    bytes memory someData = vm.parseJson(json);
-    localHitCountParams = abi.decode(someData, (HitCountParams));
-
-    for (uint256 i = 0; i < localHitCountParams.params.length; ++i) {
-      Triple.ParameterStorage memory paramStorage = localHitCountParams.params[i];
-
-      emit Log("paramStorage.parameterName");
-      emit Log(paramStorage.parameterName);
-      emit Log("paramStorage.hitCount");
-      emit Log(Strings.toString(paramStorage.hitCount));
-      emit Log("paramStorage.requiredHitCount");
-      emit Log(Strings.toString(paramStorage.requiredHitCount));
-    }
-    return localHitCountParams;
+  function _initialiseMapping(
+    string memory testLogTimestampFilePath,
+    string memory testFunctionName
+  ) private returns (string memory hitRateFilePath) {
+    string memory temporaryFileContentFiller = "temporaryFiller";
+    hitRateFilePath = _writingToFile.createLogFileIfItDoesNotExist(
+      testLogTimestampFilePath,
+      testFunctionName,
+      temporaryFileContentFiller
+    );
+    overwriteExistingMapLogFile(hitRateFilePath);
+    return hitRateFilePath;
   }
 }
