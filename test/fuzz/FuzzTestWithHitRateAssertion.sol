@@ -31,7 +31,6 @@ contract FuzzTestWithHitRateAssertion is PRBTest, StdCheats {
       testFunctionName,
       relFilePathAfterTestDir
     );
-    
   }
 
   /** Example of a basic fuzz test with a random variable. After the test, you can go to:

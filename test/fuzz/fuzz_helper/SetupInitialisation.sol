@@ -5,7 +5,6 @@ import { StdCheats } from "forge-std/src/StdCheats.sol";
 import { Vm } from "forge-std/src/Vm.sol";
 import "test/TestConstants.sol";
 import { FuzzTestCaseCounter } from "./FuzzTestCaseCounter.sol";
-import { IterableStringMapping } from "./IterableStringMapping.sol";
 import { WritingToFile } from "./WritingToFile.sol";
 
 contract SetupInitialisation is PRBTest, StdCheats {
