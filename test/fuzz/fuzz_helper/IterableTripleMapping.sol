@@ -55,10 +55,6 @@ library IterableTripleMapping {
     if (map.inserted[key]) {
       map.values[key] = val;
     } else {
-      console2.log("setting key=");
-      console2.log(key);
-      console2.log("setting val.parameterName=");
-      console2.log(val.parameterName);
       map.inserted[key] = true;
       map.values[key] = val;
       map.indexOf[key] = map.keys.length;
@@ -105,16 +101,13 @@ library IterableTripleMapping {
   }
 
   function variableIsStored(Map storage map, string memory variableName) public returns (bool isStored) {
-    console2.log("variableName=");
-    console2.log(variableName);
     for (uint256 i = 0; i < map.keys.length; i++) {
       // Per key, get the tuple value, per tuple string, check if it equals the variableName.
       if (keccak256(bytes(map.values[map.keys[i]].parameterName)) == keccak256(bytes(variableName))) {
-        console2.log("variable Is Stored");
         return true;
       }
     }
-    console2.log("variable Is Not Stored");
+
     return false;
   }
 

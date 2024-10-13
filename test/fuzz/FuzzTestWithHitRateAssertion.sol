@@ -44,7 +44,7 @@ contract FuzzTestWithHitRateAssertion is PRBTest, StdCheats {
     emit Log("FIRST CALL");
     _logMapping.readHitRatesFromLogFileAndSetToMap(_logMapping.getHitRateFilePath());
 
-    if (randomValue > 42) {
+    if (randomValue > 4200) {
       // _tupleMapping.incrementLogCount("LargerThan");
       _logMapping.callIncrementLogCount("LargerThan");
     } else {
