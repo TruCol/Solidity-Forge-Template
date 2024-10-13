@@ -28,10 +28,6 @@ library IterableTripleMapping {
     return someValue;
   }
 
-  function getKeys(Map storage map) public view returns (string[] memory) {
-    return map.keys;
-  }
-
   function getValues(Map storage map) public view returns (Triple.ParameterStorage[] memory) {
     Triple.ParameterStorage[] memory listOfValues = new Triple.ParameterStorage[](map.keys.length);
 
@@ -41,10 +37,6 @@ library IterableTripleMapping {
       }
     }
     return listOfValues;
-  }
-
-  function getKeyAtIndex(Map storage map, uint256 index) public view returns (string memory) {
-    return map.keys[index];
   }
 
   function size(Map storage map) public view returns (uint256) {
@@ -96,14 +88,8 @@ library IterableTripleMapping {
   function incrementLogCount(Map storage map, string memory variableName) public {
     if (map.inserted[variableName]) {
       incrementCount(map, variableName, 1);
-      // uint256 variableLetterKey = getCurrentVariableLetter(variableName);
     } else {
       revert VariableNotYetInitialisedError("Error, following key is not yet initialised:", variableName);
-      // uint256 newCount = 1;
-      // // Store the variable name and 0 value at the next index/letterkey.
-      // // TODO: fix duplicate count entry.
-      // Triple.ParameterStorage memory newValue = Triple.ParameterStorage(newCount, variableName, newCount);
-      // set(map, variableName, newValue);
     }
   }
 

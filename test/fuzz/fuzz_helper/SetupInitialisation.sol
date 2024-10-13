@@ -4,7 +4,7 @@ import { PRBTest } from "@prb/test/src/PRBTest.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
 import { Vm } from "forge-std/src/Vm.sol";
 import "test/TestConstants.sol";
-import { FuzzTestCaseCounter } from "./FuzzTestCaseCounter.sol";
+import { LogMapping } from "./LogMapping.sol";
 import { WritingToFile } from "./WritingToFile.sol";
 
 contract SetupInitialisation is PRBTest, StdCheats {
@@ -13,7 +13,7 @@ contract SetupInitialisation is PRBTest, StdCheats {
     string memory fileNameWithoutExt,
     string memory testFunctionName,
     string memory relFilePathAfterTestDir
-  ) public returns (FuzzTestCaseCounter _logMapping) {
+  ) public returns (LogMapping _logMapping) {
     WritingToFile writingToFile = new WritingToFile();
     // Specify the path to this file, the test file name, and the fuzz test name, used for test case coverage logging.
 
@@ -41,6 +41,6 @@ contract SetupInitialisation is PRBTest, StdCheats {
       vm.removeFile(string(abi.encodePacked(relTestLogTimestampFilePath, _TIMESTAMP_FILE_EXT)));
     }
     // Set up test case hit counter logging.
-    return new FuzzTestCaseCounter(relTestLogTimestampFilePath, testFunctionName);
+    return new LogMapping(relTestLogTimestampFilePath, testFunctionName);
   }
 }

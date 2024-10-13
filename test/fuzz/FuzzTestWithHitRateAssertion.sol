@@ -5,12 +5,12 @@ import { PRBTest } from "@prb/test/src/PRBTest.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
 import { Vm } from "forge-std/src/Vm.sol";
 import "test/TestConstants.sol";
-import { FuzzTestCaseCounter } from "./fuzz_helper/FuzzTestCaseCounter.sol";
 import { IterableTripleMapping } from "./fuzz_helper/IterableTripleMapping.sol";
+import { LogMapping } from "./fuzz_helper/LogMapping.sol";
 import { SetupInitialisation } from "./fuzz_helper/SetupInitialisation.sol";
 
 contract FuzzTestWithHitRateAssertion is PRBTest, StdCheats {
-  FuzzTestCaseCounter private _logMapping;
+  LogMapping private _logMapping;
 
   string private _hitRateFilePath;
 

@@ -13,7 +13,7 @@ struct HitCountParams {
   Triple.ParameterStorage[] params;
 }
 
-contract FuzzTestCaseCounter is PRBTest, StdCheats {
+contract LogMapping is PRBTest, StdCheats {
   using IterableTripleMapping for IterableTripleMapping.Map;
   IterableTripleMapping.Map private _tupleMapping;
   WritingToFile private _writingToFile = new WritingToFile();
