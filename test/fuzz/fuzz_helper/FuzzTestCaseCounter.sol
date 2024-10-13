@@ -85,8 +85,6 @@ contract FuzzTestCaseCounter is PRBTest, StdCheats {
     Triple.ParameterStorage[] memory params = new Triple.ParameterStorage[](parameterStorages.length);
 
     for (uint256 i = 0; i < parameterStorages.length; i++) {
-      // for (uint256 i = 0; i < _tupleMapping.getKeys().length; i++) {
-      // Triple.ParameterStorage memory parameterStorage = _tupleMapping.get(Strings.toString(i));
       params[i] = Triple.ParameterStorage({
         hitCount: parameterStorages[i].hitCount,
         parameterName: parameterStorages[i].parameterName,
@@ -128,16 +126,16 @@ into a struct, and then converts that struct into this _tupleMappingping.
     return hitRateFilePath;
   }
 
+  function initialiseParameter(string memory variableName, uint256 hitCount, uint256 requiredHitCount) public {
+    _tupleMapping.initialiseParameter(variableName, hitCount, requiredHitCount);
+  }
+
   function callIncrementLogCount(string memory variableName) public {
     _tupleMapping.incrementLogCount(variableName);
   }
 
   // solhint-disable-next-line foundry-test-functions
   function updateLogParamMapping(HitCountParams memory hitRatesReadFromFile) public {
-    // First remove all existing entries (key value pairs) form map:
-    _tupleMapping.emptyMap();
-    emit Log("Emptied map.");
-
     for (uint256 i = 0; i < hitRatesReadFromFile.params.length; i++) {
       Triple.ParameterStorage memory parameterStorage = hitRatesReadFromFile.params[i];
       _tupleMapping.set(parameterStorage.parameterName, parameterStorage);
@@ -146,8 +144,6 @@ into a struct, and then converts that struct into this _tupleMappingping.
 
   // Function to serialize the HitCountParams object to JSON
   function serializeHitCountParams(HitCountParams memory hitCountParams) public pure returns (string memory) {
-    // Get the HitCountParams data
-
     // Serialize params using the serializeParams function
     string memory paramsJsonArray = _serializeParams(hitCountParams.params);
 

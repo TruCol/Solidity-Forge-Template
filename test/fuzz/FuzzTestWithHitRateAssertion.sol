@@ -10,9 +10,6 @@ import { IterableTripleMapping } from "./fuzz_helper/IterableTripleMapping.sol";
 import { SetupInitialisation } from "./fuzz_helper/SetupInitialisation.sol";
 
 contract FuzzTestWithHitRateAssertion is PRBTest, StdCheats {
-  using IterableTripleMapping for IterableTripleMapping.Map;
-  IterableTripleMapping.Map private _tupleMapping;
-
   FuzzTestCaseCounter private _logMapping;
 
   string private _hitRateFilePath;
@@ -31,6 +28,10 @@ contract FuzzTestWithHitRateAssertion is PRBTest, StdCheats {
       testFunctionName,
       relFilePathAfterTestDir
     );
+
+    _logMapping.initialiseParameter("Total", 0, 7);
+    _logMapping.initialiseParameter("LargerThan", 0, 5);
+    _logMapping.initialiseParameter("SmallerThan", 0, 5);
   }
 
   /** Example of a basic fuzz test with a random variable. After the test, you can go to:
@@ -41,7 +42,6 @@ contract FuzzTestWithHitRateAssertion is PRBTest, StdCheats {
     to see how often each test case was hit.
    */
   function testFuzzCaseLogging(uint256 randomValue) public virtual {
-    emit Log("FIRST CALL");
     _logMapping.readHitRatesFromLogFileAndSetToMap(_logMapping.getHitRateFilePath());
 
     if (randomValue > 4200) {

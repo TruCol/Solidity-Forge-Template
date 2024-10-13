@@ -6,6 +6,8 @@ import "test/TestConstants.sol";
 import { Triple } from "./Triple.sol";
 
 error VariableNotFoundError(string message, string variableName);
+error VariableAlreadyInitialisedError(string message, string variableName);
+error VariableNotYetInitialisedError(string message, string variableName);
 error DidNotFindEmptyLogEntry(string message, string variableName);
 
 library IterableTripleMapping {
@@ -64,6 +66,7 @@ library IterableTripleMapping {
     // otherwise, return 0.
     bool foundVariable = false;
     for (uint256 i = 0; i < map.keys.length; i++) {
+      // TODO: simplify by just comparing key to variable name. Add assert that the param variableName is the same.
       // If a value tuple string equals variableName, increment its value.
       if (keccak256(bytes(map.values[map.keys[i]].parameterName)) == keccak256(bytes(variableName))) {
         map.values[map.keys[i]].hitCount = map.values[map.keys[i]].hitCount + increment;
@@ -75,28 +78,32 @@ library IterableTripleMapping {
     }
   }
 
-  function variableIsStored(Map storage map, string memory variableName) public returns (bool isStored) {
-    for (uint256 i = 0; i < map.keys.length; i++) {
-      // Per key, get the tuple value, per tuple string, check if it equals the variableName.
-      if (keccak256(bytes(map.values[map.keys[i]].parameterName)) == keccak256(bytes(variableName))) {
-        return true;
-      }
+  function initialiseParameter(
+    Map storage map,
+    string memory variableName,
+    uint256 hitCount,
+    uint256 requiredHitCount
+  ) public {
+    if (map.inserted[variableName]) {
+      revert VariableAlreadyInitialisedError("Error, the map already contains the key:", variableName);
     }
 
-    return false;
+    Triple.ParameterStorage memory newValue = Triple.ParameterStorage(hitCount, variableName, requiredHitCount);
+    set(map, variableName, newValue);
   }
 
   /** Increments the test case hit counts in the testIterableMapping. */
   function incrementLogCount(Map storage map, string memory variableName) public {
-    if (variableIsStored(map, variableName)) {
+    if (map.inserted[variableName]) {
       incrementCount(map, variableName, 1);
       // uint256 variableLetterKey = getCurrentVariableLetter(variableName);
     } else {
-      uint256 newCount = 1;
-      // Store the variable name and 0 value at the next index/letterkey.
-      // TODO: fix duplicate count entry.
-      Triple.ParameterStorage memory newValue = Triple.ParameterStorage(newCount, variableName, newCount);
-      set(map, Strings.toString(map.keys.length), newValue);
+      revert VariableNotYetInitialisedError("Error, following key is not yet initialised:", variableName);
+      // uint256 newCount = 1;
+      // // Store the variable name and 0 value at the next index/letterkey.
+      // // TODO: fix duplicate count entry.
+      // Triple.ParameterStorage memory newValue = Triple.ParameterStorage(newCount, variableName, newCount);
+      // set(map, variableName, newValue);
     }
   }
 
