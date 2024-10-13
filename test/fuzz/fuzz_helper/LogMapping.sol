@@ -3,7 +3,6 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { PRBTest } from "@prb/test/src/PRBTest.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
 import { stdJson } from "forge-std/src/StdJson.sol";
-import "test/TestConstants.sol";
 import { IterableTripleMapping } from "./IterableTripleMapping.sol";
 import { Triple } from "./Triple.sol";
 import { WritingToFile } from "./WritingToFile.sol";

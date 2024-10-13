@@ -30,4 +30,3 @@ string constant _TIMESTAMP_FILE_EXT = ".timestamp";
 
 string constant _FUZZ_TEST_LOGGING_DIR_NAME = "test_logging";
 string constant _TEST_DIR_NAME = "test";
-string constant _INITIAL_VARIABLE_PLACEHOLDER = "placeholdera";

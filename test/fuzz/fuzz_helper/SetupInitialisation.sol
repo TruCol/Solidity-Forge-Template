@@ -3,7 +3,7 @@ pragma solidity >=0.8.26 <0.9.0;
 import { PRBTest } from "@prb/test/src/PRBTest.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
 import { Vm } from "forge-std/src/Vm.sol";
-import "test/TestConstants.sol";
+import { _TIMESTAMP_FILE_EXT, _FUZZ_TEST_LOGGING_DIR_NAME, _TEST_DIR_NAME } from "test/TestConstants.sol";
 import { LogMapping } from "./LogMapping.sol";
 import { WritingToFile } from "./WritingToFile.sol";
 

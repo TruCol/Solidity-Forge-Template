@@ -1,8 +1,5 @@
 pragma solidity >=0.8.25 <0.9.0;
 
-import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { console2 } from "forge-std/src/console2.sol";
-import "test/TestConstants.sol";
 import { Triple } from "./Triple.sol";
 
 error VariableNotFoundError(string message, string variableName);
