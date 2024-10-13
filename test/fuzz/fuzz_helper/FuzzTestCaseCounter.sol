@@ -1,46 +1,12 @@
 pragma solidity >=0.8.25 <0.9.0;
-/**
-  The logging flow is described with:
-    1. Initialise the mapping at all 0 values, and export those to file and set them in the struct.
-      initialiseMapping(_tupleMapping)
-  Loop:
-    2. The values from the log file are read from file and overwrite those in the mapping.
-    readHitRatesFromLogFileAndSetToMap()
-    3. The code is ran, the mapping values are updated.
-    4. The mapping values are logged to file.
-
-  The mapping key value pairs exist in this map unstorted. Then they are
-  written to a file in a sorted fashion. They are sorted automatically.
-  Then they are read from file in alphabetical order. Since they are read in
-  alphabetical order (automatically), they can stored into the alphabetical
-  keys of the map using a switch case and enumeration (counts as indices).
-
-  TODO: verify the non-alphabetical keys of a mapping are exported to an
-  alphabetical order.
-  TODO: verify the non-alphabetical keys of a file are exported and read into
-  alphabetical order.
-  */
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { PRBTest } from "@prb/test/src/PRBTest.sol";
-import { console2 } from "forge-std/src/console2.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
 import { stdJson } from "forge-std/src/StdJson.sol";
-import "forge-std/src/Vm.sol";
 import "test/TestConstants.sol";
 import { IterableTripleMapping } from "./IterableTripleMapping.sol";
-import { OverWriteFile } from "./OverWriteFile.sol";
 import { Triple } from "./Triple.sol";
 import { WritingToFile } from "./WritingToFile.sol";
-
-// struct Params {
-//   SomeVariableStruct[] tuples;
-//   string name;
-// }
-
-// struct SomeVariableStruct {
-//   uint256 some_number;
-//   string string_title;
-// }
 
 struct HitCountParams {
   string name;
