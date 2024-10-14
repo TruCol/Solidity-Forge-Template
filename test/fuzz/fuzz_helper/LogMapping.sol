@@ -16,7 +16,7 @@ struct HitCountParams {
 interface ILogMapping {
   function overwriteExistingMapLogFile(string memory hitRateFilePath) external;
 
-  function getHitCountParams() external returns (HitCountParams memory);
+  function getHitCountParams() external returns (HitCountParams memory hitCountParams);
 
   function readHitRatesFromLogFileAndSetToMap(string memory hitRateFilePath) external;
 
@@ -28,9 +28,11 @@ interface ILogMapping {
 
   function readJson(string memory someFilePath) external returns (HitCountParams memory localHitCountParams);
 
-  function getHitRateFilePath() external view returns (string memory);
+  function getHitRateFilePath() external view returns (string memory hitRateFilePath);
 
-  function serializeHitCountParams(HitCountParams memory hitCountParams) external pure returns (string memory);
+  function serializeHitCountParams(
+    HitCountParams memory hitCountParams
+  ) external pure returns (string memory finalJson);
 }
 
 contract LogMapping is PRBTest, StdCheats, ILogMapping {
@@ -62,9 +64,10 @@ contract LogMapping is PRBTest, StdCheats, ILogMapping {
   function getHitCountParams() public override returns (HitCountParams memory hitCountParams) {
     // Initialize an array of Param structs.
     Triple.ParameterStorage[] memory parameterStorages = _tupleMapping.getValues();
-    Triple.ParameterStorage[] memory params = new Triple.ParameterStorage[](parameterStorages.length);
+    uint256 nrOfParametsr = parameterStorages.length;
+    Triple.ParameterStorage[] memory params = new Triple.ParameterStorage[](nrOfParametsr);
 
-    for (uint256 i = 0; i < parameterStorages.length; ++i) {
+    for (uint256 i = 0; i < nrOfParametsr; ++i) {
       params[i] = Triple.ParameterStorage({
         hitCount: parameterStorages[i].hitCount,
         parameterName: parameterStorages[i].parameterName,
@@ -101,18 +104,20 @@ into a struct, and then converts that struct into this _tupleMappingping.
 
   // solhint-disable-next-line foundry-test-functions
   function updateLogParamMapping(HitCountParams memory hitRatesReadFromFile) public override {
-    for (uint256 i = 0; i < hitRatesReadFromFile.params.length; ++i) {
+    uint256 nrOfParams = hitRatesReadFromFile.params.length;
+    for (uint256 i = 0; i < nrOfParams; ++i) {
       Triple.ParameterStorage memory parameterStorage = hitRatesReadFromFile.params[i];
       _tupleMapping.set(parameterStorage.parameterName, parameterStorage);
     }
   }
 
   function readJson(string memory someFilePath) public override returns (HitCountParams memory localHitCountParams) {
+    uint256 nrOfParams = localHitCountParams.params.length;
     string memory json = vm.readFile(someFilePath);
     bytes memory someData = vm.parseJson(json);
     localHitCountParams = abi.decode(someData, (HitCountParams));
 
-    for (uint256 i = 0; i < localHitCountParams.params.length; ++i) {
+    for (uint256 i = 0; i < nrOfParams; ++i) {
       Triple.ParameterStorage memory paramStorage = localHitCountParams.params[i];
 
       emit Log("paramStorage.parameterName");
@@ -151,10 +156,11 @@ into a struct, and then converts that struct into this _tupleMappingping.
   function _serializeParams(
     Triple.ParameterStorage[] memory params
   ) internal pure returns (string memory paramsJsonArray) {
+    uint256 nrOfParams = params.length;
     string[] memory paramsJson = new string[](params.length);
 
     // Serialize each paramStorage object
-    for (uint256 i = 0; i < params.length; ++i) {
+    for (uint256 i = 0; i < nrOfParams; ++i) {
       string memory paramStorageJson = "{";
       // This order is not important.
       paramStorageJson = string(
@@ -169,10 +175,11 @@ into a struct, and then converts that struct into this _tupleMappingping.
     }
 
     // Combine the params array into a JSON array
+    uint256 nrOfJsonParams = paramsJson.length;
     paramsJsonArray = "[";
-    for (uint256 i = 0; i < paramsJson.length; ++i) {
+    for (uint256 i = 0; i < nrOfJsonParams; ++i) {
       paramsJsonArray = string(abi.encodePacked(paramsJsonArray, paramsJson[i]));
-      if (i < paramsJson.length - 1) {
+      if (i < nrOfJsonParams - 1) {
         paramsJsonArray = string(abi.encodePacked(paramsJsonArray, ","));
       }
     }
