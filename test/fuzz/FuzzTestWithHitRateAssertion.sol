@@ -1,20 +1,23 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.26 <0.9.0;
-import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { PRBTest } from "@prb/test/src/PRBTest.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
-import { Vm } from "forge-std/src/Vm.sol";
-import { IterableTripleMapping } from "./fuzz_helper/IterableTripleMapping.sol";
 import { LogMapping } from "./fuzz_helper/LogMapping.sol";
 import { SetupInitialisation } from "./fuzz_helper/SetupInitialisation.sol";
 
-contract FuzzTestWithHitRateAssertion is PRBTest, StdCheats {
+interface IFuzzTestWithHitRateAssertion {
+  function setUp() external virtual;
+
+  function testFuzzCaseLogging(uint256 randomValue) external virtual;
+}
+
+contract FuzzTestWithHitRateAssertion is PRBTest, StdCheats, IFuzzTestWithHitRateAssertion {
   LogMapping private _logMapping;
 
   string private _hitRateFilePath;
 
   /** The setUp() method is called once each fuzz run.*/
-  function setUp() public virtual {
+  function setUp() public virtual override {
     // Specify this testfilepath and fuzz test function for logging purposes.
     string memory fileNameWithoutExt = "FuzzTestWithHitRateAssertion";
     string memory testFunctionName = "testFuzzCaseLogging";
@@ -40,7 +43,7 @@ contract FuzzTestWithHitRateAssertion is PRBTest, StdCheats {
 
     to see how often each test case was hit.
    */
-  function testFuzzCaseLogging(uint256 randomValue) public virtual {
+  function testFuzzCaseLogging(uint256 randomValue) public virtual override {
     _logMapping.readHitRatesFromLogFileAndSetToMap(_logMapping.getHitRateFilePath());
 
     if (randomValue > 4200) {
