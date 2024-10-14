@@ -19,7 +19,7 @@ interface IWritingToFile {
     string memory testLogTimestampFilePath,
     string memory testFunctionName,
     string memory serialisedTextString
-  ) external override returns (string memory hitRateFilePath);
+  ) external returns (string memory hitRateFilePath);
 
   function assertRelativeFileExists(string memory relativeFilePath) external;
 
@@ -27,15 +27,21 @@ interface IWritingToFile {
 
   function assertFileContainsSubstring(string memory relFilepath, string memory desiredSubstring) external;
 
-  function fileContainsSubstring(string memory relFilepath, string memory desiredSubstring) external returns (bool);
+  function fileContainsSubstring(
+    string memory relFilepath,
+    string memory desiredSubstring
+  ) external returns (bool fileContainsTheSubstring);
 
   function readDataFromFile(string memory path) external view returns (bytes memory data);
 
-  function containsSubstring(string memory mainStr, string memory subStr) external pure returns (bool);
+  function containsSubstring(
+    string memory mainStr,
+    string memory subStr
+  ) external pure returns (bool containsTheSubstring);
 }
 
 contract WritingToFile is PRBTest, StdCheats, IWritingToFile {
-  function overwriteFileContent(string memory serialisedTextString, string memory filePath) public  {
+  function overwriteFileContent(string memory serialisedTextString, string memory filePath) public override {
     vm.writeJson(serialisedTextString, filePath);
     if (!vm.isFile(filePath)) {
       revert SomeFileDoesNotExist("Some file does not exist.", filePath);
@@ -94,11 +100,12 @@ contract WritingToFile is PRBTest, StdCheats, IWritingToFile {
   function fileContainsSubstring(
     string memory relFilepath,
     string memory desiredSubstring
-  ) public override returns (bool) {
+  ) public override returns (bool fileContainsTheSubstring) {
     assertRelativeFileExists(relFilepath);
 
     string memory fileContents = vm.readFile(relFilepath);
-    return containsSubstring(fileContents, desiredSubstring);
+    fileContainsTheSubstring = containsSubstring(fileContents, desiredSubstring);
+    return fileContainsTheSubstring;
   }
 
   function readDataFromFile(string memory path) public view override returns (bytes memory data) {
@@ -107,27 +114,35 @@ contract WritingToFile is PRBTest, StdCheats, IWritingToFile {
     return data;
   }
 
-  function containsSubstring(string memory mainStr, string memory subStr) public pure override returns (bool) {
+  function containsSubstring(
+    string memory mainStr,
+    string memory subStr
+  ) public pure override returns (bool containsTheSubstring) {
     bytes memory mainBytes = bytes(mainStr);
     bytes memory subBytes = bytes(subStr);
 
+    uint256 nrOfMainBytes = mainBytes.length;
     if (subBytes.length > mainBytes.length) {
-      return false;
+      containsTheSubstring = false;
+      return containsTheSubstring;
     }
 
-    for (uint256 i = 0; i <= mainBytes.length - subBytes.length; ++i) {
+    uint256 nrOfSubBytes = subBytes.length;
+    for (uint256 i = 0; i < nrOfMainBytes - nrOfSubBytes + 1; ++i) {
       bool foundMatch = true;
-      for (uint256 j = 0; j < subBytes.length; j++) {
+      for (uint256 j = 0; j < nrOfSubBytes; ++j) {
         if (mainBytes[i + j] != subBytes[j]) {
           foundMatch = false;
           break;
         }
       }
       if (foundMatch) {
-        return true;
+        containsTheSubstring = true;
+        return containsTheSubstring;
       }
     }
-    return false;
+    containsTheSubstring = false;
+    return containsTheSubstring;
   }
 
   function _createFileIfNotExists(
