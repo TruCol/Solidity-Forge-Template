@@ -14,8 +14,6 @@ interface IFuzzTestWithHitRateAssertion {
 contract FuzzTestWithHitRateAssertion is PRBTest, StdCheats, IFuzzTestWithHitRateAssertion {
   LogMapping private _logMapping;
 
-  string private _hitRateFilePath;
-
   /** The setUp() method is called once each fuzz run.*/
   function setUp() public virtual override {
     // Specify this testfilepath and fuzz test function for logging purposes.

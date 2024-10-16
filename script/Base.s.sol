@@ -9,16 +9,17 @@ abstract contract BaseScript is Script {
   string internal constant _TEST_MNEMONIC = "test test test test test test test test test test test junk";
 
   /// @dev Needed for the deterministic deployments.
+  //slither-disable-next-line unused-state
   bytes32 internal constant _ZERO_SALT = bytes32(0);
 
   /// @dev The address of the transaction broadcaster.
-  address internal _broadcaster;
+  address internal immutable _BROADCASTER;
 
   /// @dev Used to derive the broadcaster's address if $ETH_FROM is not defined.
   string internal _mnemonic;
 
   modifier broadcast() {
-    vm.startBroadcast(_broadcaster);
+    vm.startBroadcast(_BROADCASTER);
     _;
     vm.stopBroadcast();
   }
@@ -35,10 +36,10 @@ abstract contract BaseScript is Script {
   constructor() {
     address from = vm.envOr({ name: "ETH_FROM", defaultValue: address(0) });
     if (from != address(0)) {
-      _broadcaster = from;
+      _BROADCASTER = from;
     } else {
       _mnemonic = vm.envOr({ name: "MNEMONIC", defaultValue: _TEST_MNEMONIC });
-      (_broadcaster, ) = deriveRememberKey({ mnemonic: _mnemonic, index: 0 });
+      (_BROADCASTER, ) = deriveRememberKey({ mnemonic: _mnemonic, index: 0 });
     }
   }
 
