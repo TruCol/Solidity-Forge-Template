@@ -7,8 +7,8 @@ import { BaseScript } from "./Base.s.sol";
 /// @dev See the Solidity Scripting tutorial: https://book.getfoundry.sh/tutorials/solidity-scripting
 contract Deploy is BaseScript {
   // solhint-disable-next-line comprehensive-interface
-  function runMain() public broadcast returns (Main main) {
-    main = new Main(31);
+  function runMain() public broadcast {
+    new Main(31);
   }
 
   // To make forge coverage skip this file.
