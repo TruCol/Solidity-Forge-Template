@@ -162,10 +162,13 @@ into a struct, and then converts that struct into this _tupleMappingping.
     // Serialize each paramStorage object
     for (uint256 i = 0; i < nrOfParams; ++i) {
       string memory paramStorageJson = "{";
-      // This order is not important.
-      paramStorageJson = string(
-        abi.encodePacked(paramStorageJson, '"hitCount":', Strings.toString(params[i].hitCount), ",")
+      bytes memory paramStorageBytes = abi.encodePacked(
+        paramStorageJson,
+        '"hitCount":',
+        Strings.toString(params[i].hitCount),
+        ","
       );
+      paramStorageJson = string(paramStorageBytes);
       paramStorageJson = string(abi.encodePacked(paramStorageJson, '"parameterName":"', params[i].parameterName, '",'));
       paramStorageJson = string(
         abi.encodePacked(paramStorageJson, '"requiredHitCount":', Strings.toString(params[i].requiredHitCount))
@@ -178,7 +181,9 @@ into a struct, and then converts that struct into this _tupleMappingping.
     uint256 nrOfJsonParams = paramsJson.length;
     paramsJsonArray = "[";
     for (uint256 i = 0; i < nrOfJsonParams; ++i) {
-      paramsJsonArray = string(abi.encodePacked(paramsJsonArray, paramsJson[i]));
+      bytes memory someBytes = bytes.concat(bytes(paramsJsonArray), bytes(paramsJson[i]));
+      paramsJsonArray = string(someBytes);
+
       if (i < nrOfJsonParams - 1) {
         paramsJsonArray = string(abi.encodePacked(paramsJsonArray, ","));
       }
