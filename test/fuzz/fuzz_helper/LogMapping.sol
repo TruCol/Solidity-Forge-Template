@@ -41,7 +41,7 @@ contract LogMapping is PRBTest, StdCheats, ILogMapping, ReentrancyGuard {
   using stdJson for string;
 
   IterableTripleMapping.Map private _tupleMapping;
-  WritingToFile private immutable _writingToFile = new WritingToFile();
+  WritingToFile private immutable _WRITINNG_TO_FILE = new WritingToFile();
   Triple.ParameterStorage public data;
 
   string private _hitRateFilePath;
@@ -198,7 +198,7 @@ into a struct, and then converts that struct into this _tupleMappingping.
     string memory testFunctionName
   ) private returns (string memory hitRateFilePath) {
     string memory temporaryFileContentFiller = "temporaryFiller";
-    hitRateFilePath = _writingToFile.createLogFileIfItDoesNotExist(
+    hitRateFilePath = _WRITINNG_TO_FILE.createLogFileIfItDoesNotExist(
       testLogTimestampFilePath,
       testFunctionName,
       temporaryFileContentFiller
