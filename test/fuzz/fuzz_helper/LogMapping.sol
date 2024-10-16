@@ -1,4 +1,5 @@
 pragma solidity >=0.8.25 <0.9.0;
+import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { PRBTest } from "@prb/test/src/PRBTest.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
@@ -35,7 +36,7 @@ interface ILogMapping {
   ) external pure returns (string memory finalJson);
 }
 
-contract LogMapping is PRBTest, StdCheats, ILogMapping {
+contract LogMapping is PRBTest, StdCheats, ILogMapping, ReentrancyGuard {
   using IterableTripleMapping for IterableTripleMapping.Map;
   using stdJson for string;
 
@@ -57,7 +58,6 @@ contract LogMapping is PRBTest, StdCheats, ILogMapping {
 
     // Write the final JSON to the file
     vm.writeJson(serialisedHitCountParams, hitRateFilePath);
-    emit Log("Wrote to file!");
     // TODO: assert the log filecontent equals the current _tupleMappingping values.
   }
 
