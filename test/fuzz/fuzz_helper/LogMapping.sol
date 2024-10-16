@@ -41,7 +41,7 @@ contract LogMapping is PRBTest, StdCheats, ILogMapping, ReentrancyGuard {
   using stdJson for string;
 
   IterableTripleMapping.Map private _tupleMapping;
-  WritingToFile private _writingToFile = new WritingToFile();
+  WritingToFile private immutable _writingToFile = new WritingToFile();
   Triple.ParameterStorage public data;
 
   string private _hitRateFilePath;
