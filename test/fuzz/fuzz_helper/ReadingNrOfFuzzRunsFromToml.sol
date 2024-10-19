@@ -84,11 +84,11 @@ contract ReadingNrOfFuzzRunsFromToml is PRBTest, StdCheats, IReadingNrOfFuzzRuns
     require(stop > start, "Stop must be greater than start");
 
     bytes memory strBytes = bytes(str);
-    require(stop <= strBytes.length, "Stop is out of bounds");
+    require(stop < strBytes.length + 1, "Stop is out of bounds");
 
     bytes memory result = new bytes(stop - start);
 
-    for (uint256 i = start; i < stop; i++) {
+    for (uint256 i = start; i < stop; ++i) {
       result[i - start] = strBytes[i];
     }
 
@@ -106,9 +106,9 @@ contract ReadingNrOfFuzzRunsFromToml is PRBTest, StdCheats, IReadingNrOfFuzzRuns
       return 6; // Return -1 if the substring is empty or longer than the main string
     }
 
-    for (uint256 i = 0; i <= mainLength - subLength; i++) {
+    for (uint256 i = 0; i < mainLength - subLength + 1; ++i) {
       bool foundMatch = true;
-      for (uint256 j = 0; j < subLength; j++) {
+      for (uint256 j = 0; j < subLength; ++j) {
         if (mainBytes[i + j] != subBytes[j]) {
           foundMatch = false;
           break;
@@ -129,9 +129,9 @@ contract ReadingNrOfFuzzRunsFromToml is PRBTest, StdCheats, IReadingNrOfFuzzRuns
     uint256 count = 0;
 
     // Count occurrences of the character to remove
-    for (uint256 i = 0; i < strBytes.length; i++) {
+    for (uint256 i = 0; i < strBytes.length; ++i) {
       if (strBytes[i] == charToRemove) {
-        count++;
+        ++count;
       }
     }
 
@@ -139,10 +139,10 @@ contract ReadingNrOfFuzzRunsFromToml is PRBTest, StdCheats, IReadingNrOfFuzzRuns
     bytes memory result = new bytes(strBytes.length - count);
     uint256 j = 0;
 
-    for (uint256 i = 0; i < strBytes.length; i++) {
+    for (uint256 i = 0; i < strBytes.length; ++i) {
       if (strBytes[i] != charToRemove) {
         result[j] = strBytes[i];
-        j++;
+        ++j;
       }
     }
 
@@ -152,7 +152,7 @@ contract ReadingNrOfFuzzRunsFromToml is PRBTest, StdCheats, IReadingNrOfFuzzRuns
   function assertAllCharactersAreDigits(string memory str) public pure {
     bytes memory strBytes = bytes(str);
 
-    for (uint256 i = 0; i < strBytes.length; i++) {
+    for (uint256 i = 0; i < strBytes.length; ++i) {
       require(strBytes[i] >= "0" && strBytes[i] <= "9", "String contains non-digit characters");
     }
   }
@@ -161,7 +161,7 @@ contract ReadingNrOfFuzzRunsFromToml is PRBTest, StdCheats, IReadingNrOfFuzzRuns
     bytes memory strBytes = bytes(str);
     uint256 result = 0;
 
-    for (uint256 i = 0; i < strBytes.length; i++) {
+    for (uint256 i = 0; i < strBytes.length; ++i) {
       require(strBytes[i] >= "0" && strBytes[i] <= "9", "String contains non-numeric characters");
       result = result * 10 + (uint256(uint8(strBytes[i])) - 48);
     }
@@ -169,7 +169,10 @@ contract ReadingNrOfFuzzRunsFromToml is PRBTest, StdCheats, IReadingNrOfFuzzRuns
     return result;
   }
 
-  function countSubstringOccurrences(string memory mainStr, string memory subStr) public pure returns (uint256) {
+  function countSubstringOccurrences(
+    string memory mainStr,
+    string memory subStr
+  ) public pure returns (uint256 nrOfSubstrOccurrences) {
     bytes memory mainBytes = bytes(mainStr);
     bytes memory subBytes = bytes(subStr);
     uint256 mainLength = mainBytes.length;
@@ -179,22 +182,22 @@ contract ReadingNrOfFuzzRunsFromToml is PRBTest, StdCheats, IReadingNrOfFuzzRuns
       return 0; // Return 0 if the substring is empty or longer than the main string
     }
 
-    uint256 count = 0;
+    nrOfSubstrOccurrences = 0;
 
-    for (uint256 i = 0; i <= mainLength - subLength; i++) {
+    for (uint256 i = 0; i < mainLength - subLength + 1; ++i) {
       bool foundMatch = true;
-      for (uint256 j = 0; j < subLength; j++) {
+      for (uint256 j = 0; j < subLength; ++j) {
         if (mainBytes[i + j] != subBytes[j]) {
           foundMatch = false;
           break;
         }
       }
       if (foundMatch) {
-        count++;
+        ++nrOfSubstrOccurrences;
         i += subLength - 1; // Move index to skip past the found substring
       }
     }
 
-    return count;
+    return nrOfSubstrOccurrences;
   }
 }
