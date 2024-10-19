@@ -11,6 +11,11 @@ error TomleFileDoesNotExist(string message, string fileName);
 error SomeFileNotCreated(string message, string fileName);
 error SomeDirDoesNotExist(string message, string fileName);
 error SubstringOccurredMoreThanOnce(string message, string substring);
+error StringnContainsNonDigits(string message, string someString);
+error InvalidRange(string message, uint256 start, uint256 stop);
+error OutOfBounds(string message, uint256 stop, uint256 maxLength);
+error SubstringError(string message);
+error SubstringNotFound(string message);
 
 // solhint-disable foundry-test-functions
 interface IReadingNrOfFuzzRunsFromToml {
@@ -73,37 +78,36 @@ contract ReadingNrOfFuzzRunsFromToml is PRBTest, StdCheats, IReadingNrOfFuzzRuns
     return nrOfFuzzRuns;
   }
 
-  function _boolToString(bool b) internal pure returns (string memory) {
-    return b ? "true" : "false";
-  }
-
-  function substring(string memory str, uint256 start, uint256 stop) public returns (string memory) {
+  function substring(string memory str, uint256 start, uint256 stop) public returns (string memory someSubstring) {
     emit Log(Strings.toString(start));
     emit Log(Strings.toString(stop));
 
-    require(stop > start, "Stop must be greater than start");
+    if (stop < start + 1) {
+      revert InvalidRange("Error, stop must be larger than start.", start, stop);
+    }
 
     bytes memory strBytes = bytes(str);
-    require(stop < strBytes.length + 1, "Stop is out of bounds");
-
+    // require(stop < strBytes.length + 1, "Stop is out of bounds");
+    if (stop > strBytes.length) {
+      revert OutOfBounds("Stop is out of bounds.", stop, strBytes.length);
+    }
     bytes memory result = new bytes(stop - start);
 
     for (uint256 i = start; i < stop; ++i) {
       result[i - start] = strBytes[i];
     }
-
-    return string(result);
+    someSubstring = string(result);
+    return someSubstring;
   }
 
-  function indexOf(string memory mainStr, string memory subStr) public pure returns (uint256) {
+  function indexOf(string memory mainStr, string memory subStr) public pure returns (uint256 theIndex) {
     bytes memory mainBytes = bytes(mainStr);
     bytes memory subBytes = bytes(subStr);
     uint256 mainLength = mainBytes.length;
     uint256 subLength = subBytes.length;
 
     if (subLength == 0 || mainLength < subLength) {
-      // TODO: throw error.
-      return 6; // Return -1 if the substring is empty or longer than the main string
+      revert SubstringNotFound("Error: Substring not found.");
     }
 
     for (uint256 i = 0; i < mainLength - subLength + 1; ++i) {
@@ -115,58 +119,64 @@ contract ReadingNrOfFuzzRunsFromToml is PRBTest, StdCheats, IReadingNrOfFuzzRuns
         }
       }
       if (foundMatch) {
-        return uint256(i); // Return the index of the first occurrence
+        theIndex = uint256(i); // Return the index of the first occurrence
+        return theIndex;
       }
     }
 
-    // TODO: throw error.
-    // return -1; // Return -1 if the substring is not found
-    return 5;
+    revert SubstringError("Error: Substring is empty or longer than the main string.");
   }
 
-  function removeCharacter(string memory str, bytes1 charToRemove) public pure returns (string memory) {
+  function removeCharacter(string memory str, bytes1 charToRemove) public pure returns (string memory remainingStr) {
     bytes memory strBytes = bytes(str);
     uint256 count = 0;
 
+    uint256 nrOfCharacters = strBytes.length;
     // Count occurrences of the character to remove
-    for (uint256 i = 0; i < strBytes.length; ++i) {
+    for (uint256 i = 0; i < nrOfCharacters; ++i) {
       if (strBytes[i] == charToRemove) {
         ++count;
       }
     }
 
     // Create a new bytes array without the specified character
-    bytes memory result = new bytes(strBytes.length - count);
+    bytes memory result = new bytes(nrOfCharacters - count);
     uint256 j = 0;
 
-    for (uint256 i = 0; i < strBytes.length; ++i) {
+    for (uint256 i = 0; i < nrOfCharacters; ++i) {
       if (strBytes[i] != charToRemove) {
         result[j] = strBytes[i];
         ++j;
       }
     }
 
-    return string(result);
+    remainingStr = string(result);
+    return remainingStr;
   }
 
   function assertAllCharactersAreDigits(string memory str) public pure {
     bytes memory strBytes = bytes(str);
-
-    for (uint256 i = 0; i < strBytes.length; ++i) {
-      require(strBytes[i] >= "0" && strBytes[i] <= "9", "String contains non-digit characters");
+    uint256 nrOfCharacters = strBytes.length;
+    for (uint256 i = 0; i < nrOfCharacters; ++i) {
+      if (strBytes[i] < "0" || strBytes[i] > "9") {
+        revert StringnContainsNonDigits("String contains non-digit characters", str);
+      }
     }
   }
 
-  function stringToUint(string memory str) public pure returns (uint256) {
+  function stringToUint(string memory str) public pure returns (uint256 theNumber) {
     bytes memory strBytes = bytes(str);
-    uint256 result = 0;
+    uint256 theNumber = 0;
+    uint256 nrOfCharacters = strBytes.length;
+    for (uint256 i = 0; i < nrOfCharacters; ++i) {
+      if (strBytes[i] < "0" || strBytes[i] > "9") {
+        revert StringnContainsNonDigits("String contains non-digit characters", str);
+      }
 
-    for (uint256 i = 0; i < strBytes.length; ++i) {
-      require(strBytes[i] >= "0" && strBytes[i] <= "9", "String contains non-numeric characters");
-      result = result * 10 + (uint256(uint8(strBytes[i])) - 48);
+      theNumber = theNumber * 10 + (uint256(uint8(strBytes[i])) - 48);
     }
 
-    return result;
+    return theNumber;
   }
 
   function countSubstringOccurrences(
