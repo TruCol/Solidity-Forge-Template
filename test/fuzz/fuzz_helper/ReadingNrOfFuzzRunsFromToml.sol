@@ -37,32 +37,44 @@ contract ReadingNrOfFuzzRunsFromToml is PRBTest, StdCheats, IReadingNrOfFuzzRuns
 
     // 1. Get remaining relevant string.
     string memory fromCutOffToEnd = substring(fileContents, startPos, bytes(fileContents).length);
+    emit Log("fromCutOffToEnd");
+    emit Log(fromCutOffToEnd);
     // 2. Assert closing identifier exists in remaining substring.
     writingToFile.assertStrContainsSubstring(fromCutOffToEnd, _FOUNDRY_TOML_FUZZ_RUN_END_ID);
     // 3. Find closing identifier position.
     uint256 endPos = indexOf(fromCutOffToEnd, _FOUNDRY_TOML_FUZZ_RUN_END_ID);
+    emit Log("SECOND SUBSTRING");
     // 4. Get remaining relevant substring.
-    string memory nrOfFuzzRunsSubstring = substring(fileContents, startPos, endPos);
+    string memory nrOfFuzzRunsSubstring = substring(
+      fromCutOffToEnd,
+      bytes(_FOUNDRY_TOML_FUZZ_RUN_START_ID).length,
+      endPos
+    );
+    emit Log("nrOfFuzzRunsSubstring");
+    emit Log(nrOfFuzzRunsSubstring);
     // 5. Remove spaces from relevant remaining substring.
     string memory withoutSpaces = removeCharacter(nrOfFuzzRunsSubstring, " ");
+    emit Log("withoutSpaces");
+    emit Log(withoutSpaces);
     // 6. Remove underscores from relevant remaining substring.
-    string memory withoutUnderscores = removeCharacter(nrOfFuzzRunsSubstring, "_");
+    string memory withoutUnderscores = removeCharacter(withoutSpaces, "_");
+    emit Log("withoutUnderscores");
+    emit Log(withoutUnderscores);
     // 7. Assert remaining characters are all digits.
     assertAllCharactersAreDigits(withoutUnderscores);
     // 8. Convert the remaining relevant substring to uint256.
-
-    // Get the line with the substring.
-    // getRunsValueFromToml(fileContents, _FOUNDRY_TOML_FUZZ_RUN_START_ID);
-
-    // Parse the substring.
-    nrOfFuzzRuns = 5;
+    nrOfFuzzRuns=stringToUint(withoutUnderscores);
+    return nrOfFuzzRuns;
   }
 
   function _boolToString(bool b) internal pure returns (string memory) {
     return b ? "true" : "false";
   }
 
-  function substring(string memory str, uint256 start, uint256 stop) public pure returns (string memory) {
+  function substring(string memory str, uint256 start, uint256 stop) public returns (string memory) {
+    emit Log(Strings.toString(start));
+    emit Log(Strings.toString(stop));
+
     require(stop > start, "Stop must be greater than start");
 
     bytes memory strBytes = bytes(str);
@@ -138,4 +150,17 @@ contract ReadingNrOfFuzzRunsFromToml is PRBTest, StdCheats, IReadingNrOfFuzzRuns
       require(strBytes[i] >= "0" && strBytes[i] <= "9", "String contains non-digit characters");
     }
   }
+
+  function stringToUint(string memory str) public pure returns (uint256) {
+    bytes memory strBytes = bytes(str);
+    uint256 result = 0;
+
+    for (uint256 i = 0; i < strBytes.length; i++) {
+        require(strBytes[i] >= '0' && strBytes[i] <= '9', "String contains non-numeric characters");
+        result = result * 10 + (uint256(uint8(strBytes[i])) - 48);
+    }
+
+    return result;
+}
+
 }
