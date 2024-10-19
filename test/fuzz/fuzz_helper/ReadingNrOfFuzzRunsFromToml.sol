@@ -10,7 +10,7 @@ error LogFileNotCreated(string message, string fileName);
 error TomleFileDoesNotExist(string message, string fileName);
 error SomeFileNotCreated(string message, string fileName);
 error SomeDirDoesNotExist(string message, string fileName);
-error FileDoesNotContainSubstring(string message);
+error DidNotFindSubstring(string message, string substring);
 
 // solhint-disable foundry-test-functions
 interface IReadingNrOfFuzzRunsFromToml {
@@ -66,37 +66,82 @@ contract ReadingNrOfFuzzRunsFromToml is PRBTest, StdCheats, IReadingNrOfFuzzRuns
 
       // If target is found, extract the number that follows
       if (foundMatch) {
-        uint256 nrOfFuzzRuns = 0;
-        uint256 k = i + targetLength;
-        emit Log("nrOfMainBytes");
-        emit Log(Strings.toString(nrOfMainBytes));
+        emit Log("HELLO");
 
-        while ((k < nrOfMainBytes && mainBytes[k] >= "0" && mainBytes[k] <= "9") || mainBytes[k] == "_") {
+        for (uint256 k = i + targetLength; k < nrOfMainBytes; k++) {
+          // If the current byte is an underscore, skip it
           if (mainBytes[k] == "_") {
+            emit Log("Found underscore");
             continue;
-          } else {
-            emit Log("k=");
-            emit Log(Strings.toString(k));
-            emit Log("mainbytes=");
-            emit Log(Strings.toString(uint8(mainBytes[k])));
+          }
 
+          emit Log("k=");
+          emit Log(Strings.toString(k));
+
+          emit Log("mainBytes[k] >= 0");
+          emit Log(_boolToString(mainBytes[k] >= "0"));
+
+          emit Log("mainBytes[k] <= 9");
+          emit Log(_boolToString(mainBytes[k] <= "9"));
+
+          emit Log(Strings.toString(uint8(mainBytes[k])));
+
+          // Process only if the byte is a digit
+          if (mainBytes[k] >= "0" && mainBytes[k] <= "9") {
             nrOfFuzzRuns = nrOfFuzzRuns * 10 + (uint256(uint8(mainBytes[k])) - 48);
-            k++;
-            emit Log("k=");
-            emit Log(Strings.toString(k));
-
-            emit Log("mainBytes[k] >= 0");
-            emit Log(_boolToString(mainBytes[k] >= "0"));
-
-            emit Log("mainBytes[k] <= 9");
-            emit Log(_boolToString(mainBytes[k] <= "9"));
-
-            emit Log(Strings.toString(uint8(mainBytes[k])));
+            emit Log("nrOfFuzzRuns");
+            emit Log(Strings.toString(nrOfFuzzRuns));
+          } else {
+            break; // Stop parsing if a non-numeric character is encountered
           }
         }
-        return nrOfFuzzRuns;
       }
     }
+
+    // // Search for the target substring
+    // for (uint256 i = 0; i < nrOfMainBytes - targetLength + 1; ++i) {
+    //   bool foundMatch = true;
+    //   emit Log("foundMatch=");
+    //   for (uint256 j = 0; j < targetLength; ++j) {
+    //     if (mainBytes[i + j] != target[j]) {
+    //       foundMatch = false;
+    //       break;
+    //     }
+    //   }
+
+    //   // If target is found, extract the number that follows
+    //   if (foundMatch) {
+    //     uint256 nrOfFuzzRuns = 0;
+    //     uint256 k = i + targetLength;
+    //     emit Log("nrOfMainBytes");
+    //     emit Log(Strings.toString(nrOfMainBytes));
+
+    //     while ((k < nrOfMainBytes && mainBytes[k] >= "0" && mainBytes[k] <= "9") || mainBytes[k] == "_") {
+    //       if (mainBytes[k] == "_") {
+    //         continue;
+    //       } else {
+    //         emit Log("k=");
+    //         emit Log(Strings.toString(k));
+    //         emit Log("mainbytes=");
+    //         emit Log(Strings.toString(uint8(mainBytes[k])));
+
+    //         nrOfFuzzRuns = nrOfFuzzRuns * 10 + (uint256(uint8(mainBytes[k])) - 48);
+    //         k++;
+    //         emit Log("k=");
+    //         emit Log(Strings.toString(k));
+
+    //         emit Log("mainBytes[k] >= 0");
+    //         emit Log(_boolToString(mainBytes[k] >= "0"));
+
+    //         emit Log("mainBytes[k] <= 9");
+    //         emit Log(_boolToString(mainBytes[k] <= "9"));
+
+    //         emit Log(Strings.toString(uint8(mainBytes[k])));
+    //       }
+    //     }
+    //     return nrOfFuzzRuns;
+    //   }
+    // }
 
     emit Log("Didnot foundMatch=");
     // Return 0 if the substring is not found or no number is found after it
