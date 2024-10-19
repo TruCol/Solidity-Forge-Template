@@ -6,6 +6,7 @@ error VariableNotFoundError(string message, string variableName);
 error VariableAlreadyInitialisedError(string message, string variableName);
 error VariableNotYetInitialisedError(string message, string variableName);
 error DidNotFindEmptyLogEntry(string message, string variableName);
+error KeyNotFound(string key);
 
 library IterableTripleMapping {
   struct ValueEntryTriple {
@@ -18,6 +19,13 @@ library IterableTripleMapping {
     mapping(string => Triple.ParameterStorage) values;
     mapping(string => uint256) indexOf;
     mapping(string => bool) inserted;
+  }
+
+  function get(Map storage map, string memory key) public view returns (Triple.ParameterStorage memory) {
+    if (!map.inserted[key]) {
+      revert KeyNotFound(key);
+    }
+    return map.values[key];
   }
 
   // solhint-disable-next-line foundry-test-functions

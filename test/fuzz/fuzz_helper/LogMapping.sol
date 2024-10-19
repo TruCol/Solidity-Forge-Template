@@ -111,6 +111,10 @@ into a struct, and then converts that struct into this _tupleMappingping.
     }
   }
 
+  function get(string memory variableName) public view returns (Triple.ParameterStorage memory) {
+    _tupleMapping.get(variableName);
+  }
+
   function readJson(string memory someFilePath) public override returns (HitCountParams memory localHitCountParams) {
     uint256 nrOfParams = localHitCountParams.params.length;
     string memory json = vm.readFile(someFilePath);

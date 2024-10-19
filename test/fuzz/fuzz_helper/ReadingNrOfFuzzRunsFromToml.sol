@@ -177,7 +177,7 @@ contract ReadingNrOfFuzzRunsFromToml is PRBTest, StdCheats, IReadingNrOfFuzzRuns
 
   function stringToUint(string memory str) public pure override returns (uint256 theNumber) {
     bytes memory strBytes = bytes(str);
-    uint256 theNumber = 0;
+    theNumber = 0;
     uint256 nrOfCharacters = strBytes.length;
     for (uint256 i = 0; i < nrOfCharacters; ++i) {
       if (strBytes[i] < "0" || strBytes[i] > "9") {

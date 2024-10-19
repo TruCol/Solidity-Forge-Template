@@ -5,6 +5,7 @@ import { StdCheats } from "forge-std/src/StdCheats.sol";
 import { LogMapping } from "./fuzz_helper/LogMapping.sol";
 import { ReadingNrOfFuzzRunsFromToml } from "./fuzz_helper/ReadingNrOfFuzzRunsFromToml.sol";
 import { SetupInitialisation } from "./fuzz_helper/SetupInitialisation.sol";
+error InvalidTotal(uint256 largerThan, uint256 smallerThan, uint256 total);
 
 interface IFuzzTestWithHitRateAssertion {
   function setUp() external virtual;
@@ -14,11 +15,12 @@ interface IFuzzTestWithHitRateAssertion {
 
 contract FuzzTestWithHitRateAssertion is PRBTest, StdCheats, IFuzzTestWithHitRateAssertion {
   LogMapping private _logMapping;
+  uint256 private _totalNrOfFuzzRuns;
 
   /** The setUp() method is called once each fuzz run.*/
   function setUp() public virtual override {
     ReadingNrOfFuzzRunsFromToml readingNrOfFuzzRunsFromToml = new ReadingNrOfFuzzRunsFromToml();
-    readingNrOfFuzzRunsFromToml.readNrOfFuzzRunsFromToml();
+    _totalNrOfFuzzRuns = readingNrOfFuzzRunsFromToml.readNrOfFuzzRunsFromToml();
 
     // Specify this testfilepath and fuzz test function for logging purposes.
     string memory fileNameWithoutExt = "FuzzTestWithHitRateAssertion";
@@ -58,6 +60,25 @@ contract FuzzTestWithHitRateAssertion is PRBTest, StdCheats, IFuzzTestWithHitRat
     // _tupleMapping.incrementLogCount("Total");
     _logMapping.callIncrementLogCount("Total");
 
+    assertCoverage(_totalNrOfFuzzRuns);
     _logMapping.overwriteExistingMapLogFile(_logMapping.getHitRateFilePath());
+  }
+
+  function assertCoverage(uint256 totalNrOfFuzzRuns) public {
+    if (totalNrOfFuzzRuns == _logMapping.get("Total").hitCount) {
+      emit Log("FOUND EQUALITY");
+
+      // TODO: determine why this does not throw an error.
+      if (
+        _logMapping.get("LargerThan").hitCount + _logMapping.get("SmallerThan").hitCount ==
+        _logMapping.get("Total").hitCount
+      ) {
+        revert InvalidTotal(
+          _logMapping.get("LargerThan").hitCount,
+          _logMapping.get("SmallerThan").hitCount,
+          _logMapping.get("Total").hitCount
+        );
+      }
+    }
   }
 }
