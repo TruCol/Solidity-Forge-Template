@@ -31,4 +31,5 @@ string constant _TIMESTAMP_FILE_EXT = ".timestamp";
 string constant _FUZZ_TEST_LOGGING_DIR_NAME = "test_logging";
 string constant _TEST_DIR_NAME = "test";
 string constant _FOUNDRY_TOML_FILENAME_WITH_EXT = "foundry.toml";
-string constant _FOUNDRY_TOML_FUZZ_RUN_ID = "fuzz = { runs = ";
+string constant _FOUNDRY_TOML_FUZZ_RUN_START_ID = "fuzz = { runs = ";
+string constant _FOUNDRY_TOML_FUZZ_RUN_END_ID = "]";

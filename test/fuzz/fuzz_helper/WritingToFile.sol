@@ -10,6 +10,7 @@ error SomeFileDoesNotExist(string message, string fileName);
 error SomeFileNotCreated(string message, string fileName);
 error SomeDirDoesNotExist(string message, string fileName);
 error FileDoesNotContainSubstring(string message);
+error SubstringNotFound(string message, string mainStr, string subStr);
 
 // solhint-disable foundry-test-functions
 interface IWritingToFile {
@@ -112,6 +113,12 @@ contract WritingToFile is PRBTest, StdCheats, IWritingToFile {
     string memory fileContent = vm.readFile(path);
     data = vm.parseJson(fileContent);
     return data;
+  }
+
+  function assertStrContainsSubstring(string memory mainStr, string memory subStr) public pure {
+    if (!containsSubstring(mainStr, subStr)) {
+      revert SubstringNotFound("Error, did not find substring.", mainStr, subStr);
+    }
   }
 
   function containsSubstring(

@@ -3,7 +3,7 @@ pragma solidity >=0.8.26 <0.9.0;
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { PRBTest } from "@prb/test/src/PRBTest.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
-import { _FOUNDRY_TOML_FILENAME_WITH_EXT, _FOUNDRY_TOML_FUZZ_RUN_ID } from "test/TestConstants.sol";
+import { _FOUNDRY_TOML_FILENAME_WITH_EXT, _FOUNDRY_TOML_FUZZ_RUN_START_ID, _FOUNDRY_TOML_FUZZ_RUN_END_ID } from "test/TestConstants.sol";
 import { WritingToFile } from "./WritingToFile.sol";
 
 error LogFileNotCreated(string message, string fileName);
@@ -16,7 +16,7 @@ error DidNotFindSubstring(string message, string substring);
 interface IReadingNrOfFuzzRunsFromToml {
   function readNrOfFuzzRunsFromToml() external returns (uint256 nrOfFuzzRuns);
 
-  function getRunsValueFromToml(string memory mainStr, string memory identifyingSubstr) external returns (uint256);
+  // function getRunsValueFromToml(string memory mainStr, string memory identifyingSubstr) external returns (uint256);
 }
 
 contract ReadingNrOfFuzzRunsFromToml is PRBTest, StdCheats, IReadingNrOfFuzzRunsFromToml {
@@ -27,128 +27,115 @@ contract ReadingNrOfFuzzRunsFromToml is PRBTest, StdCheats, IReadingNrOfFuzzRuns
     writingToFile.assertRelativeFileExists(_FOUNDRY_TOML_FILENAME_WITH_EXT);
 
     // Assert the substring is found in the toml filecontent.
-    writingToFile.assertFileContainsSubstring(_FOUNDRY_TOML_FILENAME_WITH_EXT, _FOUNDRY_TOML_FUZZ_RUN_ID);
+    writingToFile.assertFileContainsSubstring(_FOUNDRY_TOML_FILENAME_WITH_EXT, _FOUNDRY_TOML_FUZZ_RUN_START_ID);
 
     // Get the foundry file content.
     string memory fileContents = vm.readFile(_FOUNDRY_TOML_FILENAME_WITH_EXT);
 
+    // 0. Get start position of relevant string.
+    uint256 startPos = indexOf(fileContents, _FOUNDRY_TOML_FUZZ_RUN_START_ID);
+
+    // 1. Get remaining relevant string.
+    string memory fromCutOffToEnd = substring(fileContents, startPos, bytes(fileContents).length);
+    // 2. Assert closing identifier exists in remaining substring.
+    writingToFile.assertStrContainsSubstring(fromCutOffToEnd, _FOUNDRY_TOML_FUZZ_RUN_END_ID);
+    // 3. Find closing identifier position.
+    uint256 endPos = indexOf(fromCutOffToEnd, _FOUNDRY_TOML_FUZZ_RUN_END_ID);
+    // 4. Get remaining relevant substring.
+    string memory nrOfFuzzRunsSubstring = substring(fileContents, startPos, endPos);
+    // 5. Remove spaces from relevant remaining substring.
+    string memory withoutSpaces = removeCharacter(nrOfFuzzRunsSubstring, " ");
+    // 6. Remove underscores from relevant remaining substring.
+    string memory withoutUnderscores = removeCharacter(nrOfFuzzRunsSubstring, "_");
+    // 7. Assert remaining characters are all digits.
+    assertAllCharactersAreDigits(withoutUnderscores);
+    // 8. Convert the remaining relevant substring to uint256.
+
     // Get the line with the substring.
-    getRunsValueFromToml(fileContents, _FOUNDRY_TOML_FUZZ_RUN_ID);
+    // getRunsValueFromToml(fileContents, _FOUNDRY_TOML_FUZZ_RUN_START_ID);
 
     // Parse the substring.
     nrOfFuzzRuns = 5;
   }
 
-  function getRunsValueFromToml(
-    string memory mainStr,
-    string memory identifyingSubstr
-  ) public returns (uint256 nrOfFuzzRuns) {
-    bytes memory mainBytes = bytes(mainStr);
-    bytes memory target = bytes(identifyingSubstr);
-    uint256 targetLength = target.length;
-    uint256 nrOfMainBytes = mainBytes.length;
+  function _boolToString(bool b) internal pure returns (string memory) {
+    return b ? "true" : "false";
+  }
 
-    // Ensure the target string can fit within the main string
-    if (nrOfMainBytes <= targetLength) {
-      return 0;
+  function substring(string memory str, uint256 start, uint256 stop) public pure returns (string memory) {
+    require(stop > start, "Stop must be greater than start");
+
+    bytes memory strBytes = bytes(str);
+    require(stop <= strBytes.length, "Stop is out of bounds");
+
+    bytes memory result = new bytes(stop - start);
+
+    for (uint256 i = start; i < stop; i++) {
+      result[i - start] = strBytes[i];
     }
 
-    // Search for the target substring
-    for (uint256 i = 0; i < nrOfMainBytes - targetLength + 1; ++i) {
+    return string(result);
+  }
+
+  function indexOf(string memory mainStr, string memory subStr) public pure returns (uint256) {
+    bytes memory mainBytes = bytes(mainStr);
+    bytes memory subBytes = bytes(subStr);
+    uint256 mainLength = mainBytes.length;
+    uint256 subLength = subBytes.length;
+
+    if (subLength == 0 || mainLength < subLength) {
+      // TODO: throw error.
+      return 6; // Return -1 if the substring is empty or longer than the main string
+    }
+
+    for (uint256 i = 0; i <= mainLength - subLength; i++) {
       bool foundMatch = true;
-      emit Log("foundMatch=");
-      for (uint256 j = 0; j < targetLength; ++j) {
-        if (mainBytes[i + j] != target[j]) {
+      for (uint256 j = 0; j < subLength; j++) {
+        if (mainBytes[i + j] != subBytes[j]) {
           foundMatch = false;
           break;
         }
       }
-
-      // If target is found, extract the number that follows
       if (foundMatch) {
-        emit Log("HELLO");
-
-        for (uint256 k = i + targetLength; k < nrOfMainBytes; k++) {
-          // If the current byte is an underscore, skip it
-          if (mainBytes[k] == "_") {
-            emit Log("Found underscore");
-            continue;
-          }
-
-          emit Log("k=");
-          emit Log(Strings.toString(k));
-
-          emit Log("mainBytes[k] >= 0");
-          emit Log(_boolToString(mainBytes[k] >= "0"));
-
-          emit Log("mainBytes[k] <= 9");
-          emit Log(_boolToString(mainBytes[k] <= "9"));
-
-          emit Log(Strings.toString(uint8(mainBytes[k])));
-
-          // Process only if the byte is a digit
-          if (mainBytes[k] >= "0" && mainBytes[k] <= "9") {
-            nrOfFuzzRuns = nrOfFuzzRuns * 10 + (uint256(uint8(mainBytes[k])) - 48);
-            emit Log("nrOfFuzzRuns");
-            emit Log(Strings.toString(nrOfFuzzRuns));
-          } else {
-            break; // Stop parsing if a non-numeric character is encountered
-          }
-        }
+        return uint256(i); // Return the index of the first occurrence
       }
     }
 
-    // // Search for the target substring
-    // for (uint256 i = 0; i < nrOfMainBytes - targetLength + 1; ++i) {
-    //   bool foundMatch = true;
-    //   emit Log("foundMatch=");
-    //   for (uint256 j = 0; j < targetLength; ++j) {
-    //     if (mainBytes[i + j] != target[j]) {
-    //       foundMatch = false;
-    //       break;
-    //     }
-    //   }
-
-    //   // If target is found, extract the number that follows
-    //   if (foundMatch) {
-    //     uint256 nrOfFuzzRuns = 0;
-    //     uint256 k = i + targetLength;
-    //     emit Log("nrOfMainBytes");
-    //     emit Log(Strings.toString(nrOfMainBytes));
-
-    //     while ((k < nrOfMainBytes && mainBytes[k] >= "0" && mainBytes[k] <= "9") || mainBytes[k] == "_") {
-    //       if (mainBytes[k] == "_") {
-    //         continue;
-    //       } else {
-    //         emit Log("k=");
-    //         emit Log(Strings.toString(k));
-    //         emit Log("mainbytes=");
-    //         emit Log(Strings.toString(uint8(mainBytes[k])));
-
-    //         nrOfFuzzRuns = nrOfFuzzRuns * 10 + (uint256(uint8(mainBytes[k])) - 48);
-    //         k++;
-    //         emit Log("k=");
-    //         emit Log(Strings.toString(k));
-
-    //         emit Log("mainBytes[k] >= 0");
-    //         emit Log(_boolToString(mainBytes[k] >= "0"));
-
-    //         emit Log("mainBytes[k] <= 9");
-    //         emit Log(_boolToString(mainBytes[k] <= "9"));
-
-    //         emit Log(Strings.toString(uint8(mainBytes[k])));
-    //       }
-    //     }
-    //     return nrOfFuzzRuns;
-    //   }
-    // }
-
-    emit Log("Didnot foundMatch=");
-    // Return 0 if the substring is not found or no number is found after it
-    return 0;
+    // TODO: throw error.
+    // return -1; // Return -1 if the substring is not found
+    return 5;
   }
 
-  function _boolToString(bool b) internal pure returns (string memory) {
-    return b ? "true" : "false";
+  function removeCharacter(string memory str, bytes1 charToRemove) public pure returns (string memory) {
+    bytes memory strBytes = bytes(str);
+    uint256 count = 0;
+
+    // Count occurrences of the character to remove
+    for (uint256 i = 0; i < strBytes.length; i++) {
+      if (strBytes[i] == charToRemove) {
+        count++;
+      }
+    }
+
+    // Create a new bytes array without the specified character
+    bytes memory result = new bytes(strBytes.length - count);
+    uint256 j = 0;
+
+    for (uint256 i = 0; i < strBytes.length; i++) {
+      if (strBytes[i] != charToRemove) {
+        result[j] = strBytes[i];
+        j++;
+      }
+    }
+
+    return string(result);
+  }
+
+  function assertAllCharactersAreDigits(string memory str) public pure {
+    bytes memory strBytes = bytes(str);
+
+    for (uint256 i = 0; i < strBytes.length; i++) {
+      require(strBytes[i] >= "0" && strBytes[i] <= "9", "String contains non-digit characters");
+    }
   }
 }
