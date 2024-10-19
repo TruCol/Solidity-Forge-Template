@@ -10,7 +10,7 @@ error LogFileNotCreated(string message, string fileName);
 error TomleFileDoesNotExist(string message, string fileName);
 error SomeFileNotCreated(string message, string fileName);
 error SomeDirDoesNotExist(string message, string fileName);
-error DidNotFindSubstring(string message, string substring);
+error SubstringOccurredMoreThanOnce(string message, string substring);
 
 // solhint-disable foundry-test-functions
 interface IReadingNrOfFuzzRunsFromToml {
@@ -32,18 +32,24 @@ contract ReadingNrOfFuzzRunsFromToml is PRBTest, StdCheats, IReadingNrOfFuzzRuns
     // Get the foundry file content.
     string memory fileContents = vm.readFile(_FOUNDRY_TOML_FILENAME_WITH_EXT);
 
+    if (countSubstringOccurrences(fileContents, _FOUNDRY_TOML_FUZZ_RUN_START_ID) != 1) {
+      revert SubstringOccurredMoreThanOnce(
+        "Error, substring occurred more than once.",
+        _FOUNDRY_TOML_FUZZ_RUN_START_ID
+      );
+    }
+
     // 0. Get start position of relevant string.
     uint256 startPos = indexOf(fileContents, _FOUNDRY_TOML_FUZZ_RUN_START_ID);
 
     // 1. Get remaining relevant string.
     string memory fromCutOffToEnd = substring(fileContents, startPos, bytes(fileContents).length);
-    emit Log("fromCutOffToEnd");
-    emit Log(fromCutOffToEnd);
+
     // 2. Assert closing identifier exists in remaining substring.
     writingToFile.assertStrContainsSubstring(fromCutOffToEnd, _FOUNDRY_TOML_FUZZ_RUN_END_ID);
     // 3. Find closing identifier position.
     uint256 endPos = indexOf(fromCutOffToEnd, _FOUNDRY_TOML_FUZZ_RUN_END_ID);
-    emit Log("SECOND SUBSTRING");
+
     // 4. Get remaining relevant substring.
     string memory nrOfFuzzRunsSubstring = substring(
       fromCutOffToEnd,
@@ -63,7 +69,7 @@ contract ReadingNrOfFuzzRunsFromToml is PRBTest, StdCheats, IReadingNrOfFuzzRuns
     // 7. Assert remaining characters are all digits.
     assertAllCharactersAreDigits(withoutUnderscores);
     // 8. Convert the remaining relevant substring to uint256.
-    nrOfFuzzRuns=stringToUint(withoutUnderscores);
+    nrOfFuzzRuns = stringToUint(withoutUnderscores);
     return nrOfFuzzRuns;
   }
 
@@ -156,11 +162,39 @@ contract ReadingNrOfFuzzRunsFromToml is PRBTest, StdCheats, IReadingNrOfFuzzRuns
     uint256 result = 0;
 
     for (uint256 i = 0; i < strBytes.length; i++) {
-        require(strBytes[i] >= '0' && strBytes[i] <= '9', "String contains non-numeric characters");
-        result = result * 10 + (uint256(uint8(strBytes[i])) - 48);
+      require(strBytes[i] >= "0" && strBytes[i] <= "9", "String contains non-numeric characters");
+      result = result * 10 + (uint256(uint8(strBytes[i])) - 48);
     }
 
     return result;
-}
+  }
 
+  function countSubstringOccurrences(string memory mainStr, string memory subStr) public pure returns (uint256) {
+    bytes memory mainBytes = bytes(mainStr);
+    bytes memory subBytes = bytes(subStr);
+    uint256 mainLength = mainBytes.length;
+    uint256 subLength = subBytes.length;
+
+    if (subLength == 0 || mainLength < subLength) {
+      return 0; // Return 0 if the substring is empty or longer than the main string
+    }
+
+    uint256 count = 0;
+
+    for (uint256 i = 0; i <= mainLength - subLength; i++) {
+      bool foundMatch = true;
+      for (uint256 j = 0; j < subLength; j++) {
+        if (mainBytes[i + j] != subBytes[j]) {
+          foundMatch = false;
+          break;
+        }
+      }
+      if (foundMatch) {
+        count++;
+        i += subLength - 1; // Move index to skip past the found substring
+      }
+    }
+
+    return count;
+  }
 }
