@@ -3,6 +3,7 @@ pragma solidity >=0.8.26 <0.9.0;
 import { PRBTest } from "@prb/test/src/PRBTest.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
 import { LogMapping } from "./fuzz_helper/LogMapping.sol";
+import { ReadingNrOfFuzzRunsFromToml } from "./fuzz_helper/ReadingNrOfFuzzRunsFromToml.sol";
 import { SetupInitialisation } from "./fuzz_helper/SetupInitialisation.sol";
 
 interface IFuzzTestWithHitRateAssertion {
@@ -16,6 +17,9 @@ contract FuzzTestWithHitRateAssertion is PRBTest, StdCheats, IFuzzTestWithHitRat
 
   /** The setUp() method is called once each fuzz run.*/
   function setUp() public virtual override {
+    ReadingNrOfFuzzRunsFromToml readingNrOfFuzzRunsFromToml = new ReadingNrOfFuzzRunsFromToml();
+    readingNrOfFuzzRunsFromToml.readNrOfFuzzRunsFromToml();
+
     // Specify this testfilepath and fuzz test function for logging purposes.
     string memory fileNameWithoutExt = "FuzzTestWithHitRateAssertion";
     string memory testFunctionName = "testFuzzCaseLogging";
