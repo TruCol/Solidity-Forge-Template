@@ -1,9 +1,9 @@
 pragma solidity >=0.8.26 <0.9.0;
 
-import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { PRBTest } from "@prb/test/src/PRBTest.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
-import { _FOUNDRY_TOML_FILENAME_WITH_EXT, _FOUNDRY_TOML_FUZZ_RUN_START_ID, _FOUNDRY_TOML_FUZZ_RUN_END_ID } from "test/TestConstants.sol";
+import { _FOUNDRY_TOML_FILENAME_WITH_EXT } from "test/TestConstants.sol";
+import { _FOUNDRY_TOML_FUZZ_RUN_START_ID, _FOUNDRY_TOML_FUZZ_RUN_END_ID } from "test/TestConstants.sol";
 import { WritingToFile } from "./WritingToFile.sol";
 
 error LogFileNotCreated(string message, string fileName);
@@ -21,7 +21,20 @@ error SubstringNotFound(string message);
 interface IReadingNrOfFuzzRunsFromToml {
   function readNrOfFuzzRunsFromToml() external returns (uint256 nrOfFuzzRuns);
 
-  // function getRunsValueFromToml(string memory mainStr, string memory identifyingSubstr) external returns (uint256);
+  function substring(string memory str, uint256 start, uint256 stop) external returns (string memory someSubstring);
+
+  function indexOf(string memory mainStr, string memory subStr) external pure returns (uint256 theIndex);
+
+  function removeCharacter(string memory str, bytes1 charToRemove) external pure returns (string memory remainingStr);
+
+  function assertAllCharactersAreDigits(string memory str) external pure;
+
+  function stringToUint(string memory str) external pure returns (uint256 theNumber);
+
+  function countSubstringOccurrences(
+    string memory mainStr,
+    string memory subStr
+  ) external pure returns (uint256 nrOfSubstrOccurrences);
 }
 
 contract ReadingNrOfFuzzRunsFromToml is PRBTest, StdCheats, IReadingNrOfFuzzRunsFromToml {
@@ -61,16 +74,10 @@ contract ReadingNrOfFuzzRunsFromToml is PRBTest, StdCheats, IReadingNrOfFuzzRuns
       bytes(_FOUNDRY_TOML_FUZZ_RUN_START_ID).length,
       endPos
     );
-    emit Log("nrOfFuzzRunsSubstring");
-    emit Log(nrOfFuzzRunsSubstring);
     // 5. Remove spaces from relevant remaining substring.
     string memory withoutSpaces = removeCharacter(nrOfFuzzRunsSubstring, " ");
-    emit Log("withoutSpaces");
-    emit Log(withoutSpaces);
     // 6. Remove underscores from relevant remaining substring.
     string memory withoutUnderscores = removeCharacter(withoutSpaces, "_");
-    emit Log("withoutUnderscores");
-    emit Log(withoutUnderscores);
     // 7. Assert remaining characters are all digits.
     assertAllCharactersAreDigits(withoutUnderscores);
     // 8. Convert the remaining relevant substring to uint256.
@@ -78,10 +85,11 @@ contract ReadingNrOfFuzzRunsFromToml is PRBTest, StdCheats, IReadingNrOfFuzzRuns
     return nrOfFuzzRuns;
   }
 
-  function substring(string memory str, uint256 start, uint256 stop) public returns (string memory someSubstring) {
-    emit Log(Strings.toString(start));
-    emit Log(Strings.toString(stop));
-
+  function substring(
+    string memory str,
+    uint256 start,
+    uint256 stop
+  ) public override returns (string memory someSubstring) {
     if (stop < start + 1) {
       revert InvalidRange("Error, stop must be larger than start.", start, stop);
     }
@@ -100,7 +108,7 @@ contract ReadingNrOfFuzzRunsFromToml is PRBTest, StdCheats, IReadingNrOfFuzzRuns
     return someSubstring;
   }
 
-  function indexOf(string memory mainStr, string memory subStr) public pure returns (uint256 theIndex) {
+  function indexOf(string memory mainStr, string memory subStr) public pure override returns (uint256 theIndex) {
     bytes memory mainBytes = bytes(mainStr);
     bytes memory subBytes = bytes(subStr);
     uint256 mainLength = mainBytes.length;
@@ -127,7 +135,10 @@ contract ReadingNrOfFuzzRunsFromToml is PRBTest, StdCheats, IReadingNrOfFuzzRuns
     revert SubstringError("Error: Substring is empty or longer than the main string.");
   }
 
-  function removeCharacter(string memory str, bytes1 charToRemove) public pure returns (string memory remainingStr) {
+  function removeCharacter(
+    string memory str,
+    bytes1 charToRemove
+  ) public pure override returns (string memory remainingStr) {
     bytes memory strBytes = bytes(str);
     uint256 count = 0;
 
@@ -154,7 +165,7 @@ contract ReadingNrOfFuzzRunsFromToml is PRBTest, StdCheats, IReadingNrOfFuzzRuns
     return remainingStr;
   }
 
-  function assertAllCharactersAreDigits(string memory str) public pure {
+  function assertAllCharactersAreDigits(string memory str) public pure override {
     bytes memory strBytes = bytes(str);
     uint256 nrOfCharacters = strBytes.length;
     for (uint256 i = 0; i < nrOfCharacters; ++i) {
@@ -164,7 +175,7 @@ contract ReadingNrOfFuzzRunsFromToml is PRBTest, StdCheats, IReadingNrOfFuzzRuns
     }
   }
 
-  function stringToUint(string memory str) public pure returns (uint256 theNumber) {
+  function stringToUint(string memory str) public pure override returns (uint256 theNumber) {
     bytes memory strBytes = bytes(str);
     uint256 theNumber = 0;
     uint256 nrOfCharacters = strBytes.length;
@@ -182,7 +193,7 @@ contract ReadingNrOfFuzzRunsFromToml is PRBTest, StdCheats, IReadingNrOfFuzzRuns
   function countSubstringOccurrences(
     string memory mainStr,
     string memory subStr
-  ) public pure returns (uint256 nrOfSubstrOccurrences) {
+  ) public pure override returns (uint256 nrOfSubstrOccurrences) {
     bytes memory mainBytes = bytes(mainStr);
     bytes memory subBytes = bytes(subStr);
     uint256 mainLength = mainBytes.length;

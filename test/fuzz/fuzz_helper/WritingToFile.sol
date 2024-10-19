@@ -35,6 +35,8 @@ interface IWritingToFile {
 
   function readDataFromFile(string memory path) external view returns (bytes memory data);
 
+  function assertStrContainsSubstring(string memory mainStr, string memory subStr) external pure;
+
   function containsSubstring(
     string memory mainStr,
     string memory subStr
@@ -115,7 +117,7 @@ contract WritingToFile is PRBTest, StdCheats, IWritingToFile {
     return data;
   }
 
-  function assertStrContainsSubstring(string memory mainStr, string memory subStr) public pure {
+  function assertStrContainsSubstring(string memory mainStr, string memory subStr) public pure override {
     if (!containsSubstring(mainStr, subStr)) {
       revert SubstringNotFound("Error, did not find substring.", mainStr, subStr);
     }
