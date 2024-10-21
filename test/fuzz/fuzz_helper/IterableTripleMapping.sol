@@ -21,13 +21,6 @@ library IterableTripleMapping {
     mapping(string => bool) inserted;
   }
 
-  function get(Map storage map, string memory key) public view returns (Triple.ParameterStorage memory) {
-    if (!map.inserted[key]) {
-      revert KeyNotFound(key);
-    }
-    return map.values[key];
-  }
-
   // solhint-disable-next-line foundry-test-functions
   function set(Map storage map, string memory key, Triple.ParameterStorage memory val) public {
     if (map.inserted[key]) {
@@ -93,6 +86,15 @@ library IterableTripleMapping {
       delete map.indexOf[key];
     }
     delete map.keys;
+  }
+
+  // solhint-disable-next-line foundry-test-functions
+  function get(Map storage map, string memory key) public view returns (Triple.ParameterStorage memory theValue) {
+    if (!map.inserted[key]) {
+      revert KeyNotFound(key);
+    }
+    theValue = map.values[key];
+    return theValue;
   }
 
   // solhint-disable-next-line foundry-test-functions

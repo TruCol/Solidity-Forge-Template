@@ -17,8 +17,6 @@ struct HitCountParams {
 interface ILogMapping {
   function overwriteExistingMapLogFile(string memory hitRateFilePath) external;
 
-  function getHitCountParams() external returns (HitCountParams memory hitCountParams);
-
   function readHitRatesFromLogFileAndSetToMap(string memory hitRateFilePath) external;
 
   function initialiseParameter(string memory variableName, uint256 hitCount, uint256 requiredHitCount) external;
@@ -28,6 +26,10 @@ interface ILogMapping {
   function updateLogParamMapping(HitCountParams memory hitRatesReadFromFile) external;
 
   function readJson(string memory someFilePath) external returns (HitCountParams memory localHitCountParams);
+
+  function get(string memory variableName) external view returns (Triple.ParameterStorage memory someParam);
+
+  function getHitCountParams() external view returns (HitCountParams memory hitCountParams);
 
   function getHitRateFilePath() external view returns (string memory hitRateFilePath);
 
@@ -61,26 +63,6 @@ contract LogMapping is PRBTest, StdCheats, ILogMapping, ReentrancyGuard {
     // TODO: assert the log filecontent equals the current _tupleMappingping values.
   }
 
-  function getHitCountParams() public override returns (HitCountParams memory hitCountParams) {
-    // Initialize an array of Param structs.
-    Triple.ParameterStorage[] memory parameterStorages = _tupleMapping.getValues();
-    uint256 nrOfParametsr = parameterStorages.length;
-    Triple.ParameterStorage[] memory params = new Triple.ParameterStorage[](nrOfParametsr);
-
-    for (uint256 i = 0; i < nrOfParametsr; ++i) {
-      params[i] = Triple.ParameterStorage({
-        hitCount: parameterStorages[i].hitCount,
-        parameterName: parameterStorages[i].parameterName,
-        requiredHitCount: parameterStorages[i].requiredHitCount
-      });
-    }
-
-    // Initialize the HitCountParams struct
-    hitCountParams = HitCountParams({ params: params, name: "TheFilename" });
-
-    return hitCountParams;
-  }
-
   /** Reads the log data (parameter name and value) from the file, converts it
 into a struct, and then converts that struct into this _tupleMappingping.
  */
@@ -105,14 +87,18 @@ into a struct, and then converts that struct into this _tupleMappingping.
   // solhint-disable-next-line foundry-test-functions
   function updateLogParamMapping(HitCountParams memory hitRatesReadFromFile) public override {
     uint256 nrOfParams = hitRatesReadFromFile.params.length;
+    emit Log("nrOfParams=");
+    emit Log(Strings.toString(nrOfParams));
     for (uint256 i = 0; i < nrOfParams; ++i) {
       Triple.ParameterStorage memory parameterStorage = hitRatesReadFromFile.params[i];
+      emit Log("parameterStorage.parameterName=");
+      emit Log(parameterStorage.parameterName);
+      emit Log("parameterStorage.hitCount=");
+      emit Log(Strings.toString(parameterStorage.hitCount));
       _tupleMapping.set(parameterStorage.parameterName, parameterStorage);
+      emit Log(_tupleMapping.get(parameterStorage.parameterName).parameterName);
+      emit Log(Strings.toString(_tupleMapping.get(parameterStorage.parameterName).hitCount));
     }
-  }
-
-  function get(string memory variableName) public view returns (Triple.ParameterStorage memory) {
-    _tupleMapping.get(variableName);
   }
 
   function readJson(string memory someFilePath) public override returns (HitCountParams memory localHitCountParams) {
@@ -132,6 +118,32 @@ into a struct, and then converts that struct into this _tupleMappingping.
       emit Log(Strings.toString(paramStorage.requiredHitCount));
     }
     return localHitCountParams;
+  }
+
+  // solhint-disable-next-line foundry-test-functions
+  function get(string memory variableName) public view override returns (Triple.ParameterStorage memory someParam) {
+    someParam = _tupleMapping.get(variableName);
+    return someParam;
+  }
+
+  function getHitCountParams() public view override returns (HitCountParams memory hitCountParams) {
+    // Initialize an array of Param structs.
+    Triple.ParameterStorage[] memory parameterStorages = _tupleMapping.getValues();
+    uint256 nrOfParametsr = parameterStorages.length;
+    Triple.ParameterStorage[] memory params = new Triple.ParameterStorage[](nrOfParametsr);
+
+    for (uint256 i = 0; i < nrOfParametsr; ++i) {
+      params[i] = Triple.ParameterStorage({
+        hitCount: parameterStorages[i].hitCount,
+        parameterName: parameterStorages[i].parameterName,
+        requiredHitCount: parameterStorages[i].requiredHitCount
+      });
+    }
+
+    // Initialize the HitCountParams struct
+    hitCountParams = HitCountParams({ params: params, name: "TheFilename" });
+
+    return hitCountParams;
   }
 
   function getHitRateFilePath() public view override returns (string memory hitRateFilePath) {
